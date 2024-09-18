@@ -38,7 +38,7 @@ const flightSchema = new mongoose.Schema(
     serviceType: String,
     terminal: Number,
     schemaVersion: String,
-    flightID: String,
+    flightID: { type: String, unique: true },
   },
   {
     timestamps: true,

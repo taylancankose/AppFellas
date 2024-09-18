@@ -23,10 +23,12 @@ const userSchema = new Schema(
       url: String,
       publicId: String,
     },
-    flights: {
-      type: Schema.Types.ObjectId,
-      ref: "Reservation",
-    },
+    reservations: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Reservation",
+      },
+    ],
     token: String,
   },
   { timestamps: true }

@@ -17,7 +17,7 @@ export const register = async (req, res) => {
       name: user.name,
       email: user.email,
       profilePhoto: user.profilePhoto,
-      flights: user.flights,
+      reservations: user.reservations,
     },
   });
 };
@@ -50,7 +50,7 @@ export const login = async (req, res) => {
       name: user.name,
       email: user.email,
       profilePhoto: user.profilePhoto,
-      flights: user.flights,
+      reservations: user.reservations,
       token: token,
     },
   });

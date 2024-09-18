@@ -34,7 +34,7 @@ export const authCheck = async (req, res, next) => {
       name: user.name,
       email: user.email,
       profilePhoto: user.profilePhoto,
-      flights: user.flights,
+      reservations: user.reservations,
     };
     req.token = token;
 

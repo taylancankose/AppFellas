@@ -6,7 +6,7 @@ import Flight from "../models/flight.js"; // Flight modelimizi içe aktarıyoruz
 
 // Schiphol API'den manuel tetikleme ile bir sayfa uçuşu al ve MongoDB'ye kaydet
 export const getFlights = async (req, res) => {
-  const { page } = req.query;
+  const { page, fromDateTime, toDateTime } = req.query;
   try {
     const response = await axios.get(
       `https://api.schiphol.nl/public-flights/flights`,
@@ -15,6 +15,8 @@ export const getFlights = async (req, res) => {
           includedelays: false,
           page: page || 0,
           sort: "+scheduleTime",
+          fromDateTime,
+          toDateTime,
         },
         headers: {
           app_id: process.env.APPLICATION_ID,

@@ -4,6 +4,7 @@ import "./src/db/index.js";
 import "dotenv/config";
 import flightRouter from "./src/routers/flight.js";
 import authRouter from "./src/routers/auth.js";
+import reservationRoute from "./src/routers/reservation.js";
 
 // initializes express app
 const app = express();
@@ -32,6 +33,7 @@ app.use(function (req, res, next) {
 
 app.use("/api/flights", flightRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/reservation", reservationRoute);
 
 const PORT = process.env.PORT;
 
