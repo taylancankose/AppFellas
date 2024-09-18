@@ -14,7 +14,7 @@ function Radio({ onClick, name, stateValue, label }) {
         }`}
         name={name}
       />
-      <p className="">{label}</p>
+      <p className="w-4/5 lg:w-full">{label}</p>
     </div>
   );
 }

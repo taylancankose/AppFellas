@@ -4,10 +4,10 @@ function Card({ title, icon, bg }) {
   return (
     <div
       className={`
-        w-4/5 
+        lg:w-4/5 
+        w-full
         lg:h-60
-        md:h-24
-        h-16  
+        h-36
         bg-[url(${bg})]
         bg-cover 
         bg-no-repeat 
@@ -23,9 +23,9 @@ function Card({ title, icon, bg }) {
       <div className="absolute inset-0 bg-gray-900 opacity-40 z-0"></div>
 
       {/* Icon and Text */}
-      <div className="z-10 absolute bottom-8 left-4">
+      <div className="z-10 absolute bottom-2 lg:bottom-8 lg:left-4 left-2">
         <i className={`fa-solid fa-${icon} text-white text-lg shadow-lg`} />
-        <p className="text-white text-xl font-bold shadow-lg">
+        <p className="text-white md:text-xl font-bold shadow-lg">
           {title?.toUpperCase()}
         </p>
       </div>

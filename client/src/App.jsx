@@ -1,11 +1,13 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./views/Home";
 import MyFlights from "./views/MyFlights";
+import Header from "./ui/Header";
 
 function App() {
   return (
-    <div className="bg-[#F6F4F8]">
+    <div className="xl:overflow-hidden h-screen">
       <BrowserRouter>
+        <Header />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/my-flights/:id" element={<MyFlights />} />

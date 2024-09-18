@@ -12,7 +12,7 @@ function SearchForm() {
 
   return (
     <div className="bg-white shadow-md rounded-xl p-6">
-      <div className="flex md:flex-nowrap flex-wrap items-center justify-between mb-8 mt-4">
+      <div className="flex md:flex-nowrap flex-wrap items-center justify-between mb-8 md:mb-0 mt-4">
         {/* Title Part */}
         <div className="flex items-center space-x-2 mb-4">
           <i className="fa-solid fa-plane text-gray-600 text-lg"></i>
@@ -28,7 +28,7 @@ function SearchForm() {
       {/* From & To, Dates */}
       <div className="flex flex-col md:flex-row md:space-x-4 mt-4 w-full">
         {/* From & To */}
-        <div className="flex space-x-1 w-1/2">
+        <div className="flex space-x-1 md:w-1/2 w-full mb-4 md:mb-0">
           {/* From */}
           <Input
             icon={"plane-departure"}
@@ -46,7 +46,7 @@ function SearchForm() {
           />
         </div>
         {/* Dates */}
-        <div className="flex space-x-1 w-1/2">
+        <div className="flex space-x-1 md:w-1/2 w-full">
           <Input type={"date"} inputClass={"p-2 rounded-l-full w-full"} />
           <Input type={"date"} inputClass={"p-2 rounded-r-full w-full"} />
         </div>

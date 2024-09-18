@@ -3,12 +3,12 @@ import React from "react";
 function FlightCards() {
   return (
     <div className="">
-      <div className="bg-white shadow-md rounded-t-lg rounded-br-lg py-6 px-8  relative">
+      <div className="bg-white shadow-md rounded-t-lg rounded-br-lg p-3 md:py-6 md:px-8 relative">
         <h3 className="font-semibold">Milano - Madrid</h3>
         {/* Flight Info */}
-        <div className="flex justify-between items-center mt-4 mb-10">
+        <div className="flex justify-between items-center mt-4 mb-10 flex-wrap md:flex-nowrap">
           {/* Departure */}
-          <div className="space-y-1 text-gray-700">
+          <div className="space-y-1 text-gray-700 md:w-fit w-full items-center flex flex-col md:flex-none md:items-start mb-4 md:mb-0">
             <div className="flex items-center text-sm ">
               <i className="fa-solid fa-plane-departure mr-2"></i>
               <p>Departure</p>
@@ -18,10 +18,10 @@ function FlightCards() {
           </div>
 
           {/* Line */}
-          <div className="w-24 h-1 bg-gray-300 mx-4"></div>
+          <div className="h-1 bg-gray-300 mx-4 hidden md:flex md:w-24 w-full"></div>
 
           {/* Airway */}
-          <div className="space-y-3 justify-center items-center flex flex-col">
+          <div className="space-y-3 justify-center items-center flex flex-col md:w-fit w-full">
             <img
               src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKcetXQ9L16CD9amLUDPSGlj43kKtqX540CQ&s"
               className="w-10 "
@@ -31,10 +31,10 @@ function FlightCards() {
           </div>
 
           {/* Line */}
-          <div className="w-24 h-1 bg-gray-300 mx-4"></div>
+          <div className=" h-1 bg-gray-300 mx-4 hidden md:flex md:w-24 w-full "></div>
 
           {/* Arrival */}
-          <div className="space-y-1 text-gray-700">
+          <div className="space-y-1 text-gray-700 md:w-fit w-full items-center flex flex-col md:flex-none md:items-start mt-4 md:mt-0">
             <div className="flex items-center text-sm ">
               <i className="fa-solid fa-plane-arrival mr-2"></i>
               <p>Arrival</p>
@@ -50,7 +50,7 @@ function FlightCards() {
           <p className="text-gray-700 text-sm font-medium">Round Trip</p>
         </div>
         {/* Book */}
-        <div className="items-center justify-center flex absolute right-0 bottom-0 bg-purple-900 w-48 h-20 rounded-tl-lg rounded-br-lg cursor-pointer hover:bg-purple-950">
+        <div className="items-center justify-center flex absolute right-0 bottom-0 bg-purple-900 lg:w-48 lg:h-20 w-36 h-14  rounded-tl-lg rounded-br-lg cursor-pointer hover:bg-purple-950">
           <p className="text-center text-white font-bold">Book Flight</p>
         </div>
       </div>
