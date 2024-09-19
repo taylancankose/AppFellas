@@ -82,7 +82,7 @@ export const getFlights = async (req, res) => {
       }
     }
 
-    res.json({ message: "Flight data fetched and saved" });
+    res.json({ flights });
   } catch (error) {
     console.error(error);
     res
