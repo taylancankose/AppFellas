@@ -7,6 +7,7 @@ function Filter() {
     arrival: "",
     stops: "",
     airline: "",
+    direction: "",
   });
 
   const handleClick = (name, type) => {
@@ -34,20 +35,20 @@ function Filter() {
         </select>
       </div>
 
-      {/* Arrival Time */}
+      {/* Direction */}
       <div>
-        <p className="font-medium text-black">Arrival Time</p>
+        <p className="font-medium text-black">Filter By Direction</p>
         <Radio
-          onClick={(name) => handleClick(name, "arrival")}
-          label="05:00 AM - 11:59 AM"
-          name="morning"
-          stateValue={filter.arrival}
+          onClick={(name) => handleClick(name, "direction")}
+          label="To Amsterdam"
+          name="A"
+          stateValue={filter.direction}
         />
         <Radio
-          onClick={(name) => handleClick(name, "arrival")}
-          label="12:00 AM - 05:59 PM"
-          name="night"
-          stateValue={filter.arrival}
+          onClick={(name) => handleClick(name, "direction")}
+          label="From Amsterdam"
+          name="D"
+          stateValue={filter.direction}
         />
       </div>
 

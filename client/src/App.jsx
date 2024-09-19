@@ -5,7 +5,7 @@ import Header from "./ui/Header";
 
 function App() {
   return (
-    <div className="xl:overflow-hidden h-screen">
+    <div className=" h-screen">
       <BrowserRouter>
         <Header />
         <Routes>
