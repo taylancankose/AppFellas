@@ -4,26 +4,11 @@ const flightSchema = new mongoose.Schema(
   {
     lastUpdatedAt: Date,
     actualLandingTime: Date,
-    aircraftType: {
-      iataMain: String,
-      iataSub: String,
-    },
-    baggageClaim: {
-      belts: [String],
-    },
-    codeshares: {
-      codeshares: [String],
-    },
     estimatedLandingTime: Date,
-    expectedTimeOnBelt: Date,
     flightDirection: { type: String, enum: ["A", "D"] },
-    flightName: String,
-    flightNumber: Number,
-    isOperationalFlight: Boolean,
     mainFlight: String,
     prefixIATA: String,
     prefixICAO: String,
-    airlineCode: Number,
     publicFlightState: {
       flightStates: [String],
     },
@@ -35,10 +20,23 @@ const flightSchema = new mongoose.Schema(
     scheduleDateTime: Date,
     scheduleDate: String,
     scheduleTime: String,
-    serviceType: String,
     terminal: Number,
-    schemaVersion: String,
     flightID: { type: String, unique: true },
+    airline: {
+      iata: { type: String },
+      icao: { type: String },
+      nvls: { type: Number },
+      publicName: { type: String },
+    },
+    destination: {
+      city: { type: String },
+      country: { type: String },
+      iata: { type: String },
+      publicName: {
+        dutch: { type: String },
+        english: { type: String },
+      },
+    },
   },
   {
     timestamps: true,

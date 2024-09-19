@@ -12,9 +12,9 @@ function SearchForm() {
 
   return (
     <div className="bg-white shadow-md rounded-xl p-6">
-      <div className="flex md:flex-nowrap flex-wrap items-center justify-between mb-8 md:mb-0 mt-4">
+      <div className="flex items-center justify-between h-full mb-6 md:flex-nowrap flex-wrap">
         {/* Title Part */}
-        <div className="flex items-center space-x-2 mb-4">
+        <div className="flex items-center space-x-2 h-full mb-4 md:mb-0">
           <i className="fa-solid fa-plane text-gray-600 text-lg"></i>
           <h2 className="text-lg font-semibold">BOOK YOUR FLIGHT</h2>
         </div>

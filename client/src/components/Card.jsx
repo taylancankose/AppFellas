@@ -8,7 +8,6 @@ function Card({ title, icon, bg }) {
         w-full
         lg:h-60
         h-36
-        bg-[url(${bg})]
         bg-cover 
         bg-no-repeat 
         bg-center 
@@ -18,6 +17,9 @@ function Card({ title, icon, bg }) {
         mb-3
         rounded-2xl
       `}
+      style={{
+        backgroundImage: `url(${bg})`,
+      }}
     >
       {/* Overlay */}
       <div className="absolute inset-0 bg-gray-900 opacity-40 z-0"></div>

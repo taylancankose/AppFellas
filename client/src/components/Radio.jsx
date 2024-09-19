@@ -9,12 +9,12 @@ function Radio({ onClick, name, stateValue, label }) {
       onClick={() => onClick(name)}
     >
       <div
-        className={`w-3 h-3 rounded-full  ${
+        className={`w-4 h-4 rounded-full  ${
           stateValue === name ? "bg-purple-600" : "border border-purple-600"
         }`}
         name={name}
       />
-      <p className="w-4/5 lg:w-full">{label}</p>
+      <p className="w-4/5 ">{label}</p>
     </div>
   );
 }
