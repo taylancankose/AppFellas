@@ -51,8 +51,8 @@ export const login = async (req, res) => {
       email: user.email,
       profilePhoto: user.profilePhoto,
       reservations: user.reservations,
-      token: token,
     },
+    token: token,
   });
 };
 

@@ -6,8 +6,21 @@ import Register from "./views/Register";
 import Login from "./views/Login";
 import AuthRoute from "./routes/AuthRoute";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { login } from "./store/actions/authActions";
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      // if token exits login
+      dispatch(login({ token }));
+    }
+  }, [dispatch]);
+
   return (
     <div className="h-screen">
       <BrowserRouter>
@@ -26,7 +39,7 @@ function App() {
             }
           />
 
-          {/* Auth routes, sadece token yoksa erişilebilir */}
+          {/* Auth routes */}
           <Route
             path="/auth/register"
             element={

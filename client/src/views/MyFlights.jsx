@@ -20,7 +20,7 @@ function MyFlights() {
         <div></div>
         {reservations?.reservations?.map((reservation) => {
           return (
-            <div className="w-screen" key={reservation._id}>
+            <div className="" key={reservation._id}>
               <ReservationCard reservation={reservation} />
             </div>
           );

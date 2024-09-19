@@ -1,7 +1,12 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { register } from "../store/actions/authActions";
+import { toast } from "react-toastify";
 
 function Register() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -17,7 +22,23 @@ function Register() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(form);
+    const registerForm = {
+      name: form.name,
+      email: form.email,
+      password: form.password,
+    };
+    try {
+      if (form.password === form.confirmPassword) {
+        dispatch(register(registerForm));
+        navigate("/auth/login");
+        toast.success("Register Success");
+      } else {
+        toast.error("Passwords do not match");
+      }
+      console.log(form);
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <>

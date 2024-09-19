@@ -1,20 +1,35 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { toast } from "react-toastify";
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const user = useSelector((state) => state.auth.user);
-
+  const token = useSelector((state) => state.auth.token);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const handleNavigate = () => {
-    navigate(`/my-flights/1`);
+  const handleLogout = () => {
+    // Logout işlemi: LocalStorage'dan token silinir ve state temizlenir
+    localStorage.removeItem("token");
+    dispatch({ type: "auth/logout" }); // Redux state'den token ve user'ı temizliyoruz
+    toast.success("Logout successful");
+    navigate("/auth/login"); // Login sayfasına yönlendirme yapıyoruz
   };
+
+  const handleNavigate = () => {
+    if (token) {
+      navigate(`/my-flights/${user.id}`); // Token varsa kullanıcı kendi uçuş sayfasına gider
+    } else {
+      navigate("/auth/login"); // Token yoksa login sayfasına yönlendirilir
+    }
+  };
+
   return (
     <nav className="bg-gray-50 overflow-x-hidden">
       <div className="flex flex-wrap items-center justify-between  p-4">
@@ -30,7 +45,7 @@ function Header() {
           </span>
         </Link>
 
-        {/* Hamburger Button */}
+        {/* Hamburger Button for Mobile */}
         <button
           onClick={toggleMenu}
           type="button"
@@ -56,7 +71,7 @@ function Header() {
           </svg>
         </button>
 
-        {/*  Mobile  */}
+        {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="fixed inset-0 bg-gray-900 bg-opacity-90 z-50 flex flex-col items-center justify-center text-white">
             {/* Close Button */}
@@ -64,7 +79,7 @@ function Header() {
               onClick={toggleMenu}
               className="absolute top-4 right-4 text-white text-3xl focus:outline-none"
             >
-              &times; {/* This is the 'X' symbol */}
+              &times; {/* 'X' symbol for close */}
             </button>
 
             <ul className="font-medium flex flex-col space-y-8 text-xl">
@@ -80,28 +95,33 @@ function Header() {
                   Discover
                 </a>
               </li>
-              {user?.name ? (
-                <li
-                  onClick={handleNavigate}
-                  className="flex items-center space-x-4 cursor-pointer"
-                >
-                  <img
-                    src="https://img.freepik.com/free-photo/brunette-girl-posing_23-2148108748.jpg"
-                    className="w-12 h-12 object-cover rounded-full"
-                    alt="User avatar"
-                  />
-                  <span className="block">Joane Smith</span>
-                </li>
+              {token ? (
+                <>
+                  <li
+                    onClick={handleNavigate}
+                    className="flex items-center space-x-4 cursor-pointer"
+                  >
+                    <img
+                      src="https://img.freepik.com/free-photo/brunette-girl-posing_23-2148108748.jpg"
+                      className="w-12 h-12 object-cover rounded-full"
+                      alt="User avatar"
+                    />
+                    <span className="block">{user.name || "User"}</span>
+                  </li>
+                  <li onClick={handleLogout} className="cursor-pointer">
+                    Logout
+                  </li>
+                </>
               ) : (
                 <>
                   <Link
-                    to={"/auth/register"}
+                    to="/auth/register"
                     className="flex items-center space-x-4 cursor-pointer"
                   >
                     <span className="block">Register</span>
                   </Link>
                   <Link
-                    to={"/auth/login"}
+                    to="/auth/login"
                     className="flex items-center space-x-4 cursor-pointer"
                   >
                     <span className="block">Login</span>
@@ -112,7 +132,7 @@ function Header() {
           </div>
         )}
 
-        {/*  Desktop (Visible on larger screens) */}
+        {/* Desktop Menu */}
         <div className="hidden w-full md:block md:w-auto" id="navbar-default">
           <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border rounded-lg md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0">
             <li className="flex items-center space-x-1">
@@ -136,33 +156,41 @@ function Header() {
               </a>
             </li>
             {user?.name ? (
-              <li
-                onClick={handleNavigate}
-                className="flex items-center space-x-1"
-              >
-                <img
-                  src="https://img.freepik.com/free-photo/brunette-girl-posing_23-2148108748.jpg"
-                  className="w-10 h-10 object-cover rounded-full"
-                  alt="User avatar"
-                />
-                <a
-                  href="#"
-                  className="block py-2 px-3 rounded md:bg-transparent m md:p-0"
-                  aria-current="page"
+              <>
+                <li
+                  onClick={handleNavigate}
+                  className="flex items-center space-x-1"
                 >
-                  Joane Smith
-                </a>
-              </li>
+                  <img
+                    src="https://img.freepik.com/free-photo/brunette-girl-posing_23-2148108748.jpg"
+                    className="w-10 h-10 object-cover rounded-full"
+                    alt="User avatar"
+                  />
+                  <a
+                    href="#"
+                    className="block py-2 px-3 rounded md:bg-transparent m md:p-0"
+                    aria-current="page"
+                  >
+                    {user.name}
+                  </a>
+                </li>
+                <li
+                  onClick={handleLogout}
+                  className="cursor-pointer flex items-center space-x-1"
+                >
+                  Logout
+                </li>
+              </>
             ) : (
               <>
                 <Link
-                  to={"/auth/register"}
+                  to="/auth/register"
                   className="flex items-center space-x-4 cursor-pointer"
                 >
                   <span className="block">Register</span>
                 </Link>
                 <Link
-                  to={"/auth/login"}
+                  to="/auth/login"
                   className="flex items-center space-x-4 cursor-pointer"
                 >
                   <span className="block">Login</span>
