@@ -2,14 +2,36 @@ import React, { useState } from "react";
 import InlineDiviButton from "../components/Buttons/InlineDiviButton";
 import Input from "../components/Input";
 import Button from "../components/Buttons/Button";
+import { getFlights } from "../store/actions/flightActions";
+import { useDispatch } from "react-redux";
+import { formatDateToISO } from "../utils/formatters";
 
-function SearchForm() {
+function SearchForm({ date, setDate, page }) {
   const [active, setActive] = useState("round");
+
+  const dispatch = useDispatch();
 
   const handleActive = (e) => {
     setActive(e.target.name);
   };
 
+  const handleSelect = (e) => {
+    setDate({
+      ...date,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    dispatch(
+      getFlights({
+        page,
+        fromDateTime: formatDateToISO(date.fromDateTime),
+        toDateTime: formatDateToISO(date.toDateTime),
+      })
+    );
+  };
   return (
     <div className="bg-white shadow-md rounded-xl p-6">
       <div className="flex items-center justify-between h-full mb-6 md:flex-nowrap flex-wrap">
@@ -47,11 +69,23 @@ function SearchForm() {
         </div>
         {/* Dates */}
         <div className="flex space-x-1 md:w-1/2 w-full">
-          <Input type={"date"} inputClass={"p-2 rounded-l-full w-full"} />
-          <Input type={"date"} inputClass={"p-2 rounded-r-full w-full"} />
+          <Input
+            name="fromDateTime"
+            value={date?.fromDateTime}
+            onChange={handleSelect}
+            type={"date"}
+            inputClass={"p-2 rounded-l-full w-full"}
+          />
+          <Input
+            name="toDateTime"
+            value={date?.toDateTime}
+            onChange={handleSelect}
+            type={"date"}
+            inputClass={"p-2 rounded-r-full w-full"}
+          />
         </div>
       </div>
-      <Button title={"Show flights"} btnClass={"mt-8"} />
+      <Button title={"Show flights"} btnClass={"mt-8"} onClick={handleClick} />
     </div>
   );
 }

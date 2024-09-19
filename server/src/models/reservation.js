@@ -12,6 +12,10 @@ const reservationSchema = new mongoose.Schema(
       required: true,
       ref: "User",
     },
+    price: {
+      type: Number,
+      required: true,
+    },
   },
   {
     timestamps: true,

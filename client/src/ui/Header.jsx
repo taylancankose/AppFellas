@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const user = useSelector((state) => state.auth.user);
 
   const navigate = useNavigate();
 
@@ -14,74 +16,74 @@ function Header() {
     navigate(`/my-flights/1`);
   };
   return (
-    <>
-      <nav className="bg-gray-50">
-        <div className="flex flex-wrap items-center justify-between mx-auto p-4">
-          <Link
-            to="/"
-            className="flex items-center space-x-3 rtl:space-x-reverse"
-          >
-            <div className="w-8 h-8 bg-purple-700 flex items-center rounded-full">
-              <i className="fa-solid fa-plane text-gray-50 text-2xl -ml-1"></i>
-            </div>
-            <span className="self-center text-xl font-semibold whitespace-nowrap uppercase">
-              Plane Scape
-            </span>
-          </Link>
+    <nav className="bg-gray-50 overflow-x-hidden">
+      <div className="flex flex-wrap items-center justify-between  p-4">
+        <Link
+          to="/"
+          className="flex items-center space-x-3 rtl:space-x-reverse"
+        >
+          <div className="w-8 h-8 bg-purple-700 flex items-center rounded-full">
+            <i className="fa-solid fa-plane text-gray-50 text-2xl -ml-1"></i>
+          </div>
+          <span className="self-center text-xl font-semibold whitespace-nowrap uppercase">
+            Plane Scape
+          </span>
+        </Link>
 
-          {/* Hamburger Button */}
-          <button
-            onClick={toggleMenu}
-            type="button"
-            className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
-            aria-controls="navbar-default"
-            aria-expanded={isMenuOpen}
+        {/* Hamburger Button */}
+        <button
+          onClick={toggleMenu}
+          type="button"
+          className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
+          aria-controls="navbar-default"
+          aria-expanded={isMenuOpen}
+        >
+          <span className="sr-only">Open main menu</span>
+          <svg
+            className="w-5 h-5"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 17 14"
           >
-            <span className="sr-only">Open main menu</span>
-            <svg
-              className="w-5 h-5"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 17 14"
+            <path
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M1 1h15M1 7h15M1 13h15"
+            />
+          </svg>
+        </button>
+
+        {/*  Mobile  */}
+        {isMenuOpen && (
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-90 z-50 flex flex-col items-center justify-center text-white">
+            {/* Close Button */}
+            <button
+              onClick={toggleMenu}
+              className="absolute top-4 right-4 text-white text-3xl focus:outline-none"
             >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M1 1h15M1 7h15M1 13h15"
-              />
-            </svg>
-          </button>
+              &times; {/* This is the 'X' symbol */}
+            </button>
 
-          {/*  Mobile  */}
-          {isMenuOpen && (
-            <div className="fixed inset-0 bg-gray-900 bg-opacity-90 z-50 flex flex-col items-center justify-center text-white">
-              {/* Close Button */}
-              <button
-                onClick={toggleMenu}
-                className="absolute top-4 right-4 text-white text-3xl focus:outline-none"
-              >
-                &times; {/* This is the 'X' symbol */}
-              </button>
-
-              <ul className="font-medium flex flex-col space-y-8 text-xl">
-                <li className="flex items-center space-x-4 ">
-                  <i className="fa-solid fa-tag text-purple-300 text-5xl"></i>
-                  <a href="#" className="block">
-                    Deals
-                  </a>
-                </li>
-                <li className="flex items-center space-x-4 ">
-                  <i className="fa-solid fa-earth-americas text-purple-300 text-5xl"></i>
-                  <a href="#" className="block">
-                    Discover
-                  </a>
-                </li>
+            <ul className="font-medium flex flex-col space-y-8 text-xl">
+              <li className="flex items-center space-x-4 cursor-pointer">
+                <i className="fa-solid fa-tag text-purple-300 text-5xl"></i>
+                <a href="#" className="block">
+                  Deals
+                </a>
+              </li>
+              <li className="flex items-center space-x-4 cursor-pointer">
+                <i className="fa-solid fa-earth-americas text-purple-300 text-5xl"></i>
+                <a href="#" className="block">
+                  Discover
+                </a>
+              </li>
+              {user?.name ? (
                 <li
                   onClick={handleNavigate}
-                  className="flex items-center space-x-4 "
+                  className="flex items-center space-x-4 cursor-pointer"
                 >
                   <img
                     src="https://img.freepik.com/free-photo/brunette-girl-posing_23-2148108748.jpg"
@@ -90,33 +92,50 @@ function Header() {
                   />
                   <span className="block">Joane Smith</span>
                 </li>
-              </ul>
-            </div>
-          )}
+              ) : (
+                <>
+                  <Link
+                    to={"/auth/register"}
+                    className="flex items-center space-x-4 cursor-pointer"
+                  >
+                    <span className="block">Register</span>
+                  </Link>
+                  <Link
+                    to={"/auth/login"}
+                    className="flex items-center space-x-4 cursor-pointer"
+                  >
+                    <span className="block">Login</span>
+                  </Link>
+                </>
+              )}
+            </ul>
+          </div>
+        )}
 
-          {/*  Desktop (Visible on larger screens) */}
-          <div className="hidden w-full md:block md:w-auto" id="navbar-default">
-            <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border rounded-lg md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0">
-              <li className="flex items-center space-x-1">
-                <i className="fa-solid fa-tag text-purple-700 text-xl"></i>
-                <a
-                  href="#"
-                  className="block py-2 px-3 rounded md:bg-transparent m md:p-0"
-                  aria-current="page"
-                >
-                  Deals
-                </a>
-              </li>
-              <li className="flex items-center space-x-2 justify-center">
-                <i className="fa-solid fa-earth-americas text-purple-700 text-xl"></i>
-                <a
-                  href="#"
-                  className="block py-2 px-3 rounded md:bg-transparent m md:p-0"
-                  aria-current="page"
-                >
-                  Discover
-                </a>
-              </li>
+        {/*  Desktop (Visible on larger screens) */}
+        <div className="hidden w-full md:block md:w-auto" id="navbar-default">
+          <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border rounded-lg md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0">
+            <li className="flex items-center space-x-1">
+              <i className="fa-solid fa-tag text-purple-700 text-xl"></i>
+              <a
+                href="#"
+                className="block py-2 px-3 rounded md:bg-transparent m md:p-0"
+                aria-current="page"
+              >
+                Deals
+              </a>
+            </li>
+            <li className="flex items-center space-x-2 justify-center">
+              <i className="fa-solid fa-earth-americas text-purple-700 text-xl"></i>
+              <a
+                href="#"
+                className="block py-2 px-3 rounded md:bg-transparent m md:p-0"
+                aria-current="page"
+              >
+                Discover
+              </a>
+            </li>
+            {user?.name ? (
               <li
                 onClick={handleNavigate}
                 className="flex items-center space-x-1"
@@ -134,11 +153,26 @@ function Header() {
                   Joane Smith
                 </a>
               </li>
-            </ul>
-          </div>
+            ) : (
+              <>
+                <Link
+                  to={"/auth/register"}
+                  className="flex items-center space-x-4 cursor-pointer"
+                >
+                  <span className="block">Register</span>
+                </Link>
+                <Link
+                  to={"/auth/login"}
+                  className="flex items-center space-x-4 cursor-pointer"
+                >
+                  <span className="block">Login</span>
+                </Link>
+              </>
+            )}
+          </ul>
         </div>
-      </nav>
-    </>
+      </div>
+    </nav>
   );
 }
 

@@ -1,7 +1,15 @@
 import React, { useState } from "react";
 import Radio from "../components/Radio";
+import { useDispatch } from "react-redux";
+import {
+  getFlights,
+  getFlightsByDirection,
+} from "../store/actions/flightActions";
+import { formatDateToISO } from "../utils/formatters";
+import Button from "../components/Buttons/Button";
 
-function Filter() {
+function Filter({ date, page }) {
+  const dispatch = useDispatch();
   const [filter, setFilter] = useState({
     sort: "lowest",
     arrival: "",
@@ -21,6 +29,27 @@ function Filter() {
         ...filter,
         [type]: name,
       });
+    }
+  };
+
+  const handleFilterByDirection = () => {
+    if (filter.direction === "") {
+      dispatch(
+        getFlights({
+          page: page,
+          fromDateTime: formatDateToISO(date.fromDateTime),
+          toDateTime: formatDateToISO(date.toDateTime),
+        })
+      );
+    } else {
+      dispatch(
+        getFlightsByDirection({
+          page: page,
+          direction: filter.direction,
+          from: formatDateToISO(date.fromDateTime),
+          to: formatDateToISO(date.toDateTime),
+        })
+      );
     }
   };
 
@@ -103,6 +132,8 @@ function Filter() {
           stateValue={filter.airline}
         />
       </div>
+
+      <Button title={"Filter"} onClick={handleFilterByDirection} />
     </div>
   );
 }

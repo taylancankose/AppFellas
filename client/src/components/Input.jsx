@@ -1,6 +1,6 @@
 import React from "react";
 
-function Input({ icon, placeholder, type, inputClass }) {
+function Input({ name, value, icon, placeholder, type, inputClass, onChange }) {
   return (
     <div className="relative w-full flex">
       <div className="absolute inset-y-0 start-1 flex items-center ps-3 pointer-events-none">
@@ -11,6 +11,9 @@ function Input({ icon, placeholder, type, inputClass }) {
         className={`border-2  text-gray-900 text-sm  ${inputClass}`}
         placeholder={placeholder}
         required
+        onChange={onChange}
+        name={name}
+        value={value}
       />
     </div>
   );

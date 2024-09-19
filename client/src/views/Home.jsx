@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import SearchForm from "../ui/SearchForm";
 import FlightCards from "../ui/FlightCards";
 import CategoryCards from "../ui/CategoryCards";
@@ -6,19 +6,29 @@ import Filter from "../ui/Filter";
 import { useDispatch, useSelector } from "react-redux";
 import { getFlights } from "../store/actions/flightActions";
 import Loading from "../ui/Loading";
+import { formatDateToISO, getFormattedDate } from "../utils/formatters";
 
 function Home() {
+  const dispatch = useDispatch();
+
   const flights = useSelector((state) => state.flight.flights);
   const loading = useSelector((state) => state.flight.loading);
+  const [date, setDate] = useState({
+    fromDateTime: getFormattedDate(),
+    toDateTime: getFormattedDate(1),
+  });
 
-  const dispatch = useDispatch();
   let page = 1;
-  let fromDate = "2024-09-19T00:00:00";
-  let toDate = "2024-09-22T00:00:00";
+
   useEffect(() => {
-    dispatch(getFlights({ page: page, from: fromDate, to: toDate }));
-  }, [dispatch]);
-  console.log(flights);
+    dispatch(
+      getFlights({
+        page,
+        fromDateTime: formatDateToISO(date.fromDateTime),
+        toDateTime: formatDateToISO(date.toDateTime),
+      })
+    );
+  }, [dispatch, page]);
   return (
     <>
       {/* Header */}
@@ -26,13 +36,13 @@ function Home() {
         <div className="flex flex-wrap lg:flex-nowrap items-start justify-between w-full p-4 mt-6 lg:space-x-4">
           {/* Main Section */}
           <section className="lg:w-4/5 w-full order-2 lg:order-1">
-            <SearchForm />
+            <SearchForm date={date} setDate={setDate} page={page} />
             <div className="flex md:flex-nowrap flex-wrap items-start justify-between">
               <div className="mt-10 md:w-[70%] w-full md:order-1 order-2 ">
                 {loading ? <Loading /> : <FlightCards flights={flights} />}
               </div>
               <div className="mt-10 md:w-[20%] w-full md:order-2 order-1">
-                <Filter />
+                <Filter date={date} page={page} />
               </div>
             </div>
           </section>

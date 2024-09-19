@@ -6,26 +6,6 @@ export function formatTime(timeString) {
   return `${parts[0]}:${parts[1]}`;
 }
 
-export function timeDifference(scheduleTime, estimatedLandingTime) {
-  // scheduleTime'ı "HH:MM:SS" formatından bir Date objesine çeviriyoruz
-  let scheduleDate = new Date();
-  let [hours, minutes] = scheduleTime.split(":");
-  scheduleDate.setHours(hours, minutes, 0, 0); // saniye ve milisaniye 0
-
-  // estimatedLandingTime, ISO formatında bir zaman olduğundan doğrudan bir Date objesine çeviriyoruz
-  let landingDate = new Date(estimatedLandingTime);
-
-  // İki tarih arasındaki farkı milisaniye cinsinden hesaplıyoruz
-  let differenceInMillis = landingDate - scheduleDate;
-
-  // Bu farkı saat ve dakikaya çeviriyoruz
-  let differenceInMinutes = Math.floor(differenceInMillis / 1000 / 60);
-  let hoursDiff = Math.floor(differenceInMinutes / 60);
-  let minutesDiff = differenceInMinutes % 60;
-
-  return { hours: hoursDiff, minutes: minutesDiff };
-}
-
 export function formatISOTime(isoString) {
   // Date objesini oluşturuyoruz
   let date = new Date(isoString);
@@ -36,4 +16,25 @@ export function formatISOTime(isoString) {
 
   // Saat ve dakika formatında döndürüyoruz
   return `${hours}:${minutes}`;
+}
+
+export function formatDateToISO(inputDate) {
+  let date = new Date(inputDate);
+  let year = date.getFullYear();
+  let month = ("0" + (date.getMonth() + 1)).slice(-2);
+  let day = ("0" + date.getDate()).slice(-2);
+  let hours = ("0" + date.getHours()).slice(-2);
+  let minutes = ("0" + date.getMinutes()).slice(-2);
+  let seconds = ("0" + date.getSeconds()).slice(-2);
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+}
+
+export function getFormattedDate(offsetDays = 0) {
+  const date = new Date();
+  date.setDate(date.getDate() + offsetDays); // Tarihe gün ekler
+  const year = date.getFullYear();
+  const month = ("0" + (date.getMonth() + 1)).slice(-2); // Aylar 0 bazlıdır
+  const day = ("0" + date.getDate()).slice(-2);
+  return `${year}-${month}-${day}`;
 }

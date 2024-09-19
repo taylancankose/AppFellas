@@ -4,7 +4,7 @@ import Reservation from "../models/reservation.js";
 import User from "../models/user.js";
 
 export const createReservation = async (req, res) => {
-  const { flightID } = req.body;
+  const { flightID, price } = req.body;
   const userId = req.user.id;
 
   try {
@@ -35,6 +35,7 @@ export const createReservation = async (req, res) => {
     const reservation = new Reservation({
       flight: flightID,
       owner: userId,
+      price: price,
     });
 
     // save it
