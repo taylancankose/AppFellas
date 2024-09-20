@@ -7,24 +7,49 @@ import Login from "./views/Login";
 import AuthRoute from "./routes/AuthRoute";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { login } from "./store/actions/authActions";
+import { useDispatch, useSelector } from "react-redux";
+import NotFound from "./views/NotFound";
+import {
+  getAuthState,
+  updateLoading,
+  updateLoggedIn,
+  updateUser,
+} from "./store/auth";
+import { getFromLocalStorage, Keys } from "./utils/localStorage";
+import client from "./api/client";
 
 function App() {
   const dispatch = useDispatch();
+  const getAuthStatus = async () => {
+    dispatch(updateLoading(true));
+    try {
+      const token = getFromLocalStorage(Keys.AUTH_TOKEN);
+      if (!token) {
+        dispatch(updateLoading(false));
+        return;
+      }
+
+      const { data } = await client.get("/auth/is-auth", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      dispatch(updateUser(data.user));
+      dispatch(updateLoggedIn(true));
+    } catch (error) {
+      console.log("Auth error: " + error);
+    }
+    dispatch(updateLoading(false));
+  };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      // if token exits login
-      dispatch(login({ token }));
-    }
-  }, [dispatch]);
-
+    getAuthStatus();
+  }, []);
   return (
     <div className="h-screen">
       <BrowserRouter>
         <Header />
+
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Home />} />
@@ -56,6 +81,7 @@ function App() {
               </AuthRoute>
             }
           />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </div>

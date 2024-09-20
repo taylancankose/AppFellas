@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { register, login, logout } from "../controllers/auth.js";
+import { register, login, logout, userProfile } from "../controllers/auth.js";
 import { validate } from "../middlewares/validator.js";
 import {
   LoginVerification,
@@ -12,5 +12,6 @@ const router = Router();
 router.post("/register", validate(RegisterUserValidation), register);
 router.post("/login", validate(LoginVerification), login);
 router.post("/logout", authCheck, logout);
+router.get("/is-auth", authCheck, userProfile);
 
 export default router;

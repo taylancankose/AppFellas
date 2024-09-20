@@ -2,32 +2,37 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
+import {
+  getAuthState,
+  updateLoading,
+  updateLoggedIn,
+  updateUser,
+} from "../store/auth";
+import { getClient } from "../api/client";
+import { Keys, removeFromLocalStorage } from "../utils/localStorage";
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const user = useSelector((state) => state.auth.user);
-  const token = useSelector((state) => state.auth.token);
+  const { user, loggedIn } = useSelector(getAuthState);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const handleLogout = () => {
-    // Logout işlemi: LocalStorage'dan token silinir ve state temizlenir
-    localStorage.removeItem("token");
-    dispatch({ type: "auth/logout" }); // Redux state'den token ve user'ı temizliyoruz
-    toast.success("Logout successful");
-    navigate("/auth/login"); // Login sayfasına yönlendirme yapıyoruz
-  };
-
-  const handleNavigate = () => {
-    if (token) {
-      navigate(`/my-flights/${user.id}`); // Token varsa kullanıcı kendi uçuş sayfasına gider
-    } else {
-      navigate("/auth/login"); // Token yoksa login sayfasına yönlendirilir
+  const handleLogout = async () => {
+    dispatch(updateLoading(true));
+    try {
+      const client = await getClient();
+      await client.post("/auth/logout");
+      removeFromLocalStorage(Keys.AUTH_TOKEN);
+      dispatch(updateUser(null));
+      dispatch(updateLoggedIn(false));
+      toast.success("Logout successful");
+    } catch (error) {
+      console.log("Logout failed", error);
     }
+    dispatch(updateLoading(false));
   };
 
   return (
@@ -95,10 +100,10 @@ function Header() {
                   Discover
                 </a>
               </li>
-              {token ? (
+              {loggedIn ? (
                 <>
-                  <li
-                    onClick={handleNavigate}
+                  <Link
+                    to={`/my-flights/${user?.id}`}
                     className="flex items-center space-x-4 cursor-pointer"
                   >
                     <img
@@ -107,7 +112,7 @@ function Header() {
                       alt="User avatar"
                     />
                     <span className="block">{user.name || "User"}</span>
-                  </li>
+                  </Link>
                   <li onClick={handleLogout} className="cursor-pointer">
                     Logout
                   </li>
@@ -157,8 +162,8 @@ function Header() {
             </li>
             {user?.name ? (
               <>
-                <li
-                  onClick={handleNavigate}
+                <Link
+                  to={`/my-flights/${user?.id}`}
                   className="flex items-center space-x-1"
                 >
                   <img
@@ -166,14 +171,13 @@ function Header() {
                     className="w-10 h-10 object-cover rounded-full"
                     alt="User avatar"
                   />
-                  <a
-                    href="#"
+                  <span
                     className="block py-2 px-3 rounded md:bg-transparent m md:p-0"
                     aria-current="page"
                   >
                     {user.name}
-                  </a>
-                </li>
+                  </span>
+                </Link>
                 <li
                   onClick={handleLogout}
                   className="cursor-pointer flex items-center space-x-1"

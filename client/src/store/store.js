@@ -1,10 +1,14 @@
-import { configureStore } from "@reduxjs/toolkit";
-import flightReducer from "./slicer/flightSlice";
-import authReducer from "./slicer/authSlice";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
+import flightReducer from "./flight";
+import authReducer from "./auth";
+import reservationReducer from "./reservation";
+
+const rootReducer = combineReducers({
+  flight: flightReducer,
+  auth: authReducer,
+  reservation: reservationReducer,
+});
 
 export const store = configureStore({
-  reducer: {
-    flight: flightReducer,
-    auth: authReducer,
-  },
+  reducer: rootReducer,
 });

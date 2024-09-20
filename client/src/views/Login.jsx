@@ -2,7 +2,9 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
-import { login } from "../store/actions/authActions";
+import { getClient } from "../api/client";
+import { Keys, saveToLocalStorage } from "../utils/localStorage";
+import { updateLoggedIn, updateUser } from "../store/auth";
 
 function Login() {
   const navigate = useNavigate();
@@ -22,12 +24,16 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(login(form)).unwrap();
+      const client = await getClient();
+      const { data } = await client.post("/auth/login", form);
+      saveToLocalStorage(Keys.AUTH_TOKEN, data?.token);
+
+      dispatch(updateUser(data?.user));
+      dispatch(updateLoggedIn(true));
+      toast.success("Login successful");
       navigate("/");
-      toast.success("Login Success");
     } catch (error) {
-      console.log(error);
-      toast.error("Login Failed");
+      console.log("Login error", error);
     }
   };
 

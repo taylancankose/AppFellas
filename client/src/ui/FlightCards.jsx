@@ -1,23 +1,26 @@
 import React from "react";
 import { formatISOTime, formatTime } from "../utils/formatters";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { makeReservation } from "../store/actions/flightActions";
+import { getClient } from "../api/client";
+import { getAuthState } from "../store/auth";
 
 function FlightCards({ flights }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const handleReservation = ({ flightID, price }) => {
+  const { user } = useSelector(getAuthState);
+
+  const handleReservation = async ({ flightID, price }) => {
     try {
-      dispatch(
-        makeReservation({
+      const client = await getClient();
+      await client
+        .post("/reservation/reserve", {
           flightID: flightID,
           price: price,
         })
-      )
         .then(() => {
-          navigate(`/my-flights/66ec3222b86a4628eaf110ad`);
+          navigate(`/my-flights/${user?.id}`);
           toast.success("Flight has been booked successfully!");
         })
         .catch(() => {

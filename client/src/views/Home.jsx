@@ -4,15 +4,16 @@ import FlightCards from "../ui/FlightCards";
 import CategoryCards from "../ui/CategoryCards";
 import Filter from "../ui/Filter";
 import { useDispatch, useSelector } from "react-redux";
-import { getFlights } from "../store/actions/flightActions";
 import Loading from "../ui/Loading";
 import { formatDateToISO, getFormattedDate } from "../utils/formatters";
+import { getFlightState, updateFlights } from "../store/flight";
+import client from "../api/client";
+import { updateLoading } from "../store/flight";
 
 function Home() {
   const dispatch = useDispatch();
+  const { flights, loading } = useSelector(getFlightState);
 
-  const flights = useSelector((state) => state.flight.flights);
-  const loading = useSelector((state) => state.flight.loading);
   const [date, setDate] = useState({
     fromDateTime: getFormattedDate(),
     toDateTime: getFormattedDate(1),
@@ -20,15 +21,24 @@ function Home() {
 
   let page = 1;
 
+  const getFlights = async () => {
+    dispatch(updateLoading(true));
+    try {
+      const { data } = await client.get(
+        `/flights/getAll?page=${page}&fromDateTime=${formatDateToISO(
+          date.fromDateTime
+        )}&toDateTime=${formatDateToISO(date.toDateTime)}`
+      );
+      dispatch(updateFlights(data.lastFlights));
+    } catch (error) {
+      console.log(error);
+    }
+    dispatch(updateLoading(false));
+  };
+
   useEffect(() => {
-    dispatch(
-      getFlights({
-        page,
-        fromDateTime: formatDateToISO(date.fromDateTime),
-        toDateTime: formatDateToISO(date.toDateTime),
-      })
-    );
-  }, [dispatch, page]);
+    getFlights();
+  }, [page]);
   return (
     <>
       {/* Header */}

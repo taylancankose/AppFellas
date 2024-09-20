@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { register } from "../store/actions/authActions";
 import { toast } from "react-toastify";
+import client from "../api/client";
 
 function Register() {
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ function Register() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const registerForm = {
       name: form.name,
@@ -29,15 +29,14 @@ function Register() {
     };
     try {
       if (form.password === form.confirmPassword) {
-        dispatch(register(registerForm));
+        const { data } = await client.post("/auth/register", registerForm);
         navigate("/auth/login");
         toast.success("Register Success");
       } else {
         toast.error("Passwords do not match");
       }
-      console.log(form);
     } catch (error) {
-      console.log(error);
+      console.log("Register error", error);
     }
   };
   return (

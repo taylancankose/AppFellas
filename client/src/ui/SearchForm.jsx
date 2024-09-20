@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import InlineDiviButton from "../components/Buttons/InlineDiviButton";
 import Input from "../components/Input";
 import Button from "../components/Buttons/Button";
-import { getFlights } from "../store/actions/flightActions";
 import { useDispatch } from "react-redux";
 import { formatDateToISO } from "../utils/formatters";
+import { updateFlights, updateLoading } from "../store/flight";
+import client from "../api/client";
 
 function SearchForm({ date, setDate, page }) {
   const [active, setActive] = useState("round");
@@ -22,16 +23,26 @@ function SearchForm({ date, setDate, page }) {
     });
   };
 
-  const handleClick = (e) => {
-    e.preventDefault();
-    dispatch(
-      getFlights({
-        page,
-        fromDateTime: formatDateToISO(date.fromDateTime),
-        toDateTime: formatDateToISO(date.toDateTime),
-      })
-    );
+  const getFlights = async () => {
+    dispatch(updateLoading(true));
+    try {
+      const { data } = await client.get(
+        `/flights/getAll?page=${page}&fromDateTime=${formatDateToISO(
+          date.fromDateTime
+        )}&toDateTime=${formatDateToISO(date.toDateTime)}`
+      );
+      dispatch(updateFlights(data.lastFlights));
+    } catch (error) {
+      console.log(error);
+    }
+    dispatch(updateLoading(false));
   };
+
+  const handleClick = async (e) => {
+    e.preventDefault();
+    getFlights();
+  };
+
   return (
     <div className="bg-white shadow-md rounded-xl p-6">
       <div className="flex items-center justify-between h-full mb-6 md:flex-nowrap flex-wrap">

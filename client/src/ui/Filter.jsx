@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import Radio from "../components/Radio";
 import { useDispatch } from "react-redux";
-import {
-  getFlights,
-  getFlightsByDirection,
-} from "../store/actions/flightActions";
 import { formatDateToISO } from "../utils/formatters";
 import Button from "../components/Buttons/Button";
+import { updateFlights, updateLoading } from "../store/flight";
+import client from "../api/client";
 
 function Filter({ date, page }) {
   const dispatch = useDispatch();
@@ -32,25 +30,30 @@ function Filter({ date, page }) {
     }
   };
 
-  const handleFilterByDirection = () => {
-    if (filter.direction === "") {
-      dispatch(
-        getFlights({
-          page: page,
-          fromDateTime: formatDateToISO(date.fromDateTime),
-          toDateTime: formatDateToISO(date.toDateTime),
-        })
-      );
-    } else {
-      dispatch(
-        getFlightsByDirection({
-          page: page,
-          direction: filter.direction,
-          from: formatDateToISO(date.fromDateTime),
-          to: formatDateToISO(date.toDateTime),
-        })
-      );
+  const handleFilterByDirection = async () => {
+    dispatch(updateLoading(true));
+    try {
+      if (filter.direction === "") {
+        const { data } = await client.get(
+          `/flights/getAll?page=${page}&fromDateTime=${formatDateToISO(
+            date.fromDateTime
+          )}&toDateTime=${formatDateToISO(date.toDateTime)}`
+        );
+        dispatch(updateFlights(data.lastFlights));
+      } else {
+        const { data } = await client.get(
+          `/flights/get-by-direction?direction=${
+            filter.direction
+          }&page=${page}&fromDateTime=${formatDateToISO(
+            date.fromDateTime
+          )}&toDateTime=${formatDateToISO(date.toDateTime)}`
+        );
+        dispatch(updateFlights(data.lastFlights));
+      }
+    } catch (error) {
+      console.log("filtering by direction error");
     }
+    dispatch(updateLoading(false));
   };
 
   return (

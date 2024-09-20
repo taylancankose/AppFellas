@@ -65,3 +65,9 @@ export const logout = async (req, res) => {
 
   res.json({ message: "Logged out" });
 };
+
+export const userProfile = (req, res) => {
+  res.json({
+    user: req.user,
+  });
+};

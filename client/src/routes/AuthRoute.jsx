@@ -1,10 +1,11 @@
 import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { getAuthState } from "../store/auth";
 
 const AuthRoute = ({ children }) => {
-  const token = useSelector((state) => state.auth.token);
+  const { loggedIn } = useSelector(getAuthState);
 
-  if (token) {
+  if (loggedIn) {
     return <Navigate to="/" />; // If there is a working token redirect to the home page
   }
 
