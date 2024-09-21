@@ -9,6 +9,7 @@ import { formatDateToISO, getFormattedDate } from "../utils/formatters";
 import { getFlightState, updateFlights } from "../store/flight";
 import client from "../api/client";
 import { updateLoading } from "../store/flight";
+import FlightDensityChart from "../ui/FlightDensityChart";
 
 function Home() {
   const dispatch = useDispatch();

@@ -94,12 +94,13 @@ function Header() {
                   Deals
                 </a>
               </li>
-              <li className="flex items-center space-x-4 cursor-pointer">
+              <Link
+                to={"/discover"}
+                className="flex items-center space-x-4 cursor-pointer"
+              >
                 <i className="fa-solid fa-earth-americas text-purple-300 text-5xl"></i>
-                <a href="#" className="block">
-                  Discover
-                </a>
-              </li>
+                <span className="block">Discover</span>
+              </Link>
               {loggedIn ? (
                 <>
                   <Link
@@ -150,16 +151,18 @@ function Header() {
                 Deals
               </a>
             </li>
-            <li className="flex items-center space-x-2 justify-center">
+            <Link
+              to={"/discover"}
+              className="flex items-center space-x-2 justify-center"
+            >
               <i className="fa-solid fa-earth-americas text-purple-700 text-xl"></i>
-              <a
-                href="#"
+              <span
                 className="block py-2 px-3 rounded md:bg-transparent m md:p-0"
                 aria-current="page"
               >
                 Discover
-              </a>
-            </li>
+              </span>
+            </Link>
             {user?.name ? (
               <>
                 <Link

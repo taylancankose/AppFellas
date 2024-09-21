@@ -7,16 +7,12 @@ import Login from "./views/Login";
 import AuthRoute from "./routes/AuthRoute";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import NotFound from "./views/NotFound";
-import {
-  getAuthState,
-  updateLoading,
-  updateLoggedIn,
-  updateUser,
-} from "./store/auth";
+import { updateLoading, updateLoggedIn, updateUser } from "./store/auth";
 import { getFromLocalStorage, Keys } from "./utils/localStorage";
 import client from "./api/client";
+import Discover from "./views/Discover";
 
 function App() {
   const dispatch = useDispatch();
@@ -53,6 +49,7 @@ function App() {
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Home />} />
+          <Route path="/discover" element={<Discover />} />
 
           {/* Protected routes */}
           <Route
