@@ -9,11 +9,19 @@ import { getAuthState } from "../store/auth";
 function FlightCards({ flights }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user } = useSelector(getAuthState);
+  const { user, loggedIn } = useSelector(getAuthState);
 
   const handleReservation = async ({ flightID, price }) => {
     try {
       const client = await getClient();
+
+      if (!loggedIn) {
+        toast.error(
+          "You can not make any reservation since you are not logged in"
+        );
+        return;
+      }
+
       await client
         .post("/reservation/reserve", {
           flightID: flightID,

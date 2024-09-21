@@ -1,5 +1,6 @@
 import React from "react";
 import { formatISOTime, formatTime } from "../utils/formatters";
+import PriceCard from "./PriceCard";
 
 function ReservationCard({ reservation }) {
   const { flight } = reservation;
@@ -50,26 +51,11 @@ function ReservationCard({ reservation }) {
 
         {/* Price */}
         <div className="flex flex-wrap md:flex-nowrap items-center md:justify-between justify-center gap-4 md:gap-6 mt-6 lg:mt-0">
-          <div className="border rounded-md w-24 h-28 flex flex-col items-center justify-center">
-            <h3 className="font-medium text-lg mb-4">$156</h3>
-            <p className="text-gray-400 text-sm">Main</p>
-          </div>
-          <div className="border rounded-md w-24 h-28 flex flex-col items-center justify-center">
-            <h3 className="font-medium text-lg mb-4">$204</h3>
-            <p className="text-gray-400 text-sm">Comfort+</p>
-          </div>
-          <div className="border rounded-md w-24 h-28 flex flex-col items-center justify-center">
-            <h3 className="font-medium text-lg mb-4">$386</h3>
-            <p className="text-gray-400 text-sm">Delta One</p>
-          </div>
-          <div className="border rounded-md w-24 h-28 flex flex-col items-center justify-center">
-            <h3 className="font-medium text-lg mb-4">$386</h3>
-            <p className="text-gray-400 text-sm">Delta One</p>
-          </div>
-          <div className="border rounded-md w-24 h-28 flex flex-col items-center justify-center">
-            <h3 className="font-medium text-lg mb-4">$386</h3>
-            <p className="text-gray-400 text-sm">Delta One</p>
-          </div>
+          <PriceCard price={"$156"} title={"Main"} />
+          <PriceCard price={"$204"} title={"Comfort+"} />
+          <PriceCard price={"$386"} title={"Delta One"} />
+          <PriceCard price={"$489"} title={"Business"} />
+          <PriceCard price={"$747"} title={"Business+ "} />
         </div>
       </div>
     </div>
