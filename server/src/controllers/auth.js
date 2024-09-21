@@ -23,37 +23,42 @@ export const register = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
+    const user = await User.findOne({ email });
 
-  if (!user)
-    return res.status(403).json({ error: "Email or password not found" });
+    if (!user)
+      return res.status(404).json({ error: "Email or password not found" });
 
-  // check passwords are matching
-  const isPWMatched = await user.comparePassword(password);
-  if (!isPWMatched)
-    return res.status(403).json({ error: "Password is incorrect" });
+    // check passwords are matching
+    const isPWMatched = await user.comparePassword(password);
+    if (!isPWMatched)
+      return res.status(403).json({ error: "Password is incorrect" });
 
-  // create token
-  const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+    // create token
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
 
-  // define user to token
-  user.token = token;
+    // define user to token
+    user.token = token;
 
-  // token is added so save it again
-  await user.save();
+    // token is added so save it again
+    await user.save();
 
-  res.json({
-    user: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      profilePhoto: user.profilePhoto,
-      reservations: user.reservations,
-    },
-    token: token,
-  });
+    res.json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        profilePhoto: user.profilePhoto,
+        reservations: user.reservations,
+      },
+      token: token,
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 };
 
 export const logout = async (req, res) => {

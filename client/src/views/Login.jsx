@@ -34,6 +34,16 @@ function Login() {
       navigate("/");
     } catch (error) {
       console.log("Login error", error);
+      if (error.response && error.response.status === 403) {
+        // Show toast error for wrong email or password
+        toast.error("Email or password is incorrect.");
+      } else if (error.response && error.response.status === 404) {
+        // Show toast error for wrong email or password
+        toast.error("Email or password not found.");
+      } else {
+        // Generic error for other issues (network, server, etc.)
+        toast.error("An error occurred during login. Please try again.");
+      }
     }
   };
 

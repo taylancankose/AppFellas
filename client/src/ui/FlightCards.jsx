@@ -1,13 +1,12 @@
 import React from "react";
 import { formatISOTime, formatTime } from "../utils/formatters";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { getClient } from "../api/client";
 import { getAuthState } from "../store/auth";
 
 function FlightCards({ flights }) {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user, loggedIn } = useSelector(getAuthState);
 
@@ -44,7 +43,10 @@ function FlightCards({ flights }) {
         flights?.map((flight) => {
           return (
             <div className="mb-6" key={flight?._id}>
-              <div className="bg-white shadow-md rounded-t-lg rounded-br-lg p-3 md:py-6 md:px-8 relative">
+              <div
+                className="transition duration-500 ease-in-out transform hover:scale-105 
+              bg-white shadow-md rounded-t-lg rounded-br-lg p-3 md:py-6 md:px-8 relative"
+              >
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="font-semibold">
