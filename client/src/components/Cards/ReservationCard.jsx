@@ -1,5 +1,5 @@
 import React from "react";
-import { formatISOTime, formatTime } from "../utils/formatters";
+import { formatISOTime, formatTime } from "../../utils/formatters";
 import PriceCard from "./PriceCard";
 
 function ReservationCard({ reservation }) {
@@ -17,7 +17,7 @@ function ReservationCard({ reservation }) {
             <h4 className="text-2xl mb-3">
               {flight?.scheduleTime
                 ? formatTime(flight?.scheduleTime)
-                : formatISOTime(flight?.scheduleDateTime)}{" "}
+                : formatISOTime(flight?.scheduleDateTime)}
               -{" "}
               {flight?.estimatedLandingTime
                 ? formatISOTime(flight?.estimatedLandingTime)

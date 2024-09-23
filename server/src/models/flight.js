@@ -37,14 +37,18 @@ const flightSchema = new mongoose.Schema(
         english: { type: String },
       },
     },
+    isReserved: { type: Boolean, default: false },
   },
   {
     timestamps: true,
   }
 );
 
-// Add a TTL of 24 hours for the documents. Remove documents after 1 day to prevent memory leaks and get used to unneccessary data
-flightSchema.index({ scheduleDateTime: 1 }, { expireAfterSeconds: 86400 });
+// Remove documents after 1 day to prevent memory leaks and get used to unneccessary data if it is not reserved
+flightSchema.index(
+  { scheduleDateTime: 1 },
+  { expireAfterSeconds: 86400, partialFilterExpression: { isReserved: false } }
+);
 
 // Model create
 export default model("Flight", flightSchema);

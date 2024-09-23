@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import Flight from "../models/flight.js";
 import Reservation from "../models/reservation.js";
 import User from "../models/user.js";
@@ -37,6 +36,11 @@ export const createReservation = async (req, res) => {
       owner: userId,
       price: price,
     });
+
+    await Flight.updateOne(
+      { flightID: flightID },
+      { $set: { isReserved: true } }
+    ); // make it isReserved true when reservation is created
 
     // save it
     await reservation.save();

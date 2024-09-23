@@ -9,18 +9,16 @@ import { formatDateToISO, getFormattedDate } from "../utils/formatters";
 import { getFlightState, updateFlights } from "../store/flight";
 import client from "../api/client";
 import { updateLoading } from "../store/flight";
-import FlightDensityChart from "../ui/FlightDensityChart";
+import Pagination from "../components/Pagination";
 
 function Home() {
   const dispatch = useDispatch();
-  const { flights, loading } = useSelector(getFlightState);
+  const { flights, loading, page } = useSelector(getFlightState);
 
   const [date, setDate] = useState({
     fromDateTime: getFormattedDate(),
     toDateTime: getFormattedDate(1),
   });
-
-  let page = 1;
 
   const getFlights = async () => {
     dispatch(updateLoading(true));
@@ -47,13 +45,13 @@ function Home() {
         <div className="flex flex-wrap lg:flex-nowrap items-start justify-between w-full p-4 mt-6 lg:space-x-4">
           {/* Main Section */}
           <section className="lg:w-4/5 w-full order-2 lg:order-1">
-            <SearchForm date={date} setDate={setDate} page={page} />
+            <SearchForm date={date} setDate={setDate} />
             <div className="flex md:flex-nowrap flex-wrap items-start justify-between">
               <div className="mt-10 md:w-[70%] w-full md:order-1 order-2 ">
                 {loading ? <Loading /> : <FlightCards flights={flights} />}
               </div>
               <div className="mt-10 md:w-[20%] w-full md:order-2 order-1">
-                <Filter date={date} page={page} />
+                <Filter date={date} />
               </div>
             </div>
           </section>
@@ -62,6 +60,7 @@ function Home() {
             <CategoryCards />
           </section>
         </div>
+        <Pagination />
       </div>
     </>
   );

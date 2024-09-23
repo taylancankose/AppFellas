@@ -6,6 +6,14 @@ export const getFlights = async (req, res) => {
   const { page, fromDateTime, toDateTime } = req.query;
   let lastFlights = [];
   try {
+    // Find flights data according to date range
+    const existingFlights = await Flight.find({
+      scheduleDateTime: { $gte: fromDateTime, $lte: toDateTime },
+    });
+
+    const existingFlightIDs = existingFlights.map((flight) => flight.flightID);
+
+    // Get data from api
     const response = await axios.get(
       `${process.env.API_URL}/flights?includedelays=false&page=${page}&sort=%2BscheduleTime&fromDateTime=${fromDateTime}&toDateTime=${toDateTime}`,
       {
@@ -23,11 +31,9 @@ export const getFlights = async (req, res) => {
       return res.status(200).json({ message: "Flight could not be found" });
     }
 
-    // Get new flights from API and save them in database
+    // Save data that are not found in db
     for (let flight of flights) {
-      const checkExists = await Flight.findOne({ flightID: flight.id });
-      if (checkExists) lastFlights.push(checkExists);
-      if (!checkExists) {
+      if (!existingFlightIDs.includes(flight.id)) {
         const destinationCode =
           flight.route.destinations[flight.route.destinations.length - 1];
         const airlineICAO = flight.prefixICAO;
@@ -35,8 +41,8 @@ export const getFlights = async (req, res) => {
         let destinationData = null;
         let airlineData = null;
 
+        // Destination API
         try {
-          // Destination API isteği
           const destinationResponse = await axios.get(
             `${process.env.API_URL}/destinations/${destinationCode}`,
             {
@@ -54,8 +60,9 @@ export const getFlights = async (req, res) => {
           );
           destinationData = null;
         }
+
+        // Airline API
         try {
-          // Airline API isteği
           const airlineResponse = await axios.get(
             `${process.env.API_URL}/airlines/${airlineICAO}`,
             {
@@ -72,6 +79,7 @@ export const getFlights = async (req, res) => {
           airlineData = "Unknown airline";
         }
 
+        // Save ne flight to db
         const createdFlight = new Flight({
           lastUpdatedAt: flight.lastUpdatedAt,
           actualLandingTime: flight.actualLandingTime,
@@ -91,12 +99,15 @@ export const getFlights = async (req, res) => {
           destination: destinationData,
         });
 
-        lastFlights.push(createdFlight);
         await createdFlight.save();
+        lastFlights.push(createdFlight); // add recently added flights to array
+      } else {
+        const existingFlight = await Flight.findOne({ flightID: flight.id });
+        lastFlights.push(existingFlight);
       }
     }
 
-    // Son olarak kaydedilen uçuşları yeniden alıp geri döndür
+    // Response
     res.json({ lastFlights });
   } catch (error) {
     console.error(error.message);
@@ -111,7 +122,7 @@ export const getFlightsByDirection = async (req, res) => {
   const { direction, page = 0, fromDateTime, toDateTime } = req.query;
   let lastFlights = [];
   try {
-    // API'ye uçuş yönüne göre istek at
+    // Make request with direction
     const response = await axios.get(`${process.env.API_URL}/flights`, {
       params: {
         includedelays: false,
@@ -119,7 +130,7 @@ export const getFlightsByDirection = async (req, res) => {
         sort: "+scheduleTime",
         fromDateTime,
         toDateTime,
-        flightDirection: direction, // Uçuş yönü filtresi
+        flightDirection: direction, // Direction
       },
       headers: {
         app_id: process.env.APPLICATION_ID,
@@ -130,7 +141,7 @@ export const getFlightsByDirection = async (req, res) => {
 
     const flights = response.data.flights;
 
-    // Eğer API'den uçuşlar gelmediyse
+    // if there is no flight
     if (!flights || flights.length === 0) {
       return res
         .status(200)
@@ -149,7 +160,7 @@ export const getFlightsByDirection = async (req, res) => {
         let airlineData = null;
 
         try {
-          // Destination API isteği
+          // Get Destination Data
           const destinationResponse = await axios.get(
             `${process.env.API_URL}/destinations/${destinationCode}`,
             {
@@ -168,7 +179,7 @@ export const getFlightsByDirection = async (req, res) => {
           destinationData = null;
         }
         try {
-          // Airline API isteği
+          // Get Airline Data
           const airlineResponse = await axios.get(
             `${process.env.API_URL}/airlines/${airlineICAO}`,
             {
@@ -209,7 +220,7 @@ export const getFlightsByDirection = async (req, res) => {
       }
     }
 
-    // Uçuşları yanıt olarak dön
+    // Response
     res.json({ lastFlights });
   } catch (error) {
     console.error(error.message);

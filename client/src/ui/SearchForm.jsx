@@ -2,15 +2,22 @@ import React, { useState } from "react";
 import InlineDiviButton from "../components/Buttons/InlineDiviButton";
 import Input from "../components/Input";
 import Button from "../components/Buttons/Button";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { formatDateToISO } from "../utils/formatters";
-import { updateFlights, updateLoading } from "../store/flight";
+import {
+  getFlightState,
+  updateFlights,
+  updateLoading,
+  updatePage,
+} from "../store/flight";
 import client from "../api/client";
+import { toast } from "react-toastify";
 
-function SearchForm({ date, setDate, page }) {
+function SearchForm({ date, setDate }) {
   const [active, setActive] = useState("round");
-
+  const today = new Date().toISOString().split("T")[0];
   const dispatch = useDispatch();
+  const { page } = useSelector(getFlightState);
 
   const handleActive = (e) => {
     setActive(e.target.name);
@@ -23,6 +30,18 @@ function SearchForm({ date, setDate, page }) {
     });
   };
 
+  const validateDates = () => {
+    if (date?.fromDateTime < today) {
+      toast.error("From date cannot be earlier than today.");
+      return false;
+    }
+    if (date?.toDateTime < date?.fromDateTime) {
+      toast.error("To date cannot be earlier than from date.");
+      return false;
+    }
+    return true;
+  };
+
   const getFlights = async () => {
     dispatch(updateLoading(true));
     try {
@@ -31,6 +50,7 @@ function SearchForm({ date, setDate, page }) {
           date.fromDateTime
         )}&toDateTime=${formatDateToISO(date.toDateTime)}`
       );
+      dispatch(updatePage(0));
       dispatch(updateFlights(data.lastFlights));
     } catch (error) {
       console.log(error);
@@ -40,9 +60,10 @@ function SearchForm({ date, setDate, page }) {
 
   const handleClick = async (e) => {
     e.preventDefault();
-    getFlights();
+    if (validateDates()) {
+      getFlights();
+    }
   };
-
   return (
     <div className="bg-white shadow-md rounded-xl p-6">
       <div className="flex items-center justify-between h-full mb-6 md:flex-nowrap flex-wrap">

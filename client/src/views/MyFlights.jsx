@@ -1,8 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import ReservationCard from "../components/ReservationCard";
 import FlightFilter from "../ui/FlightFilter";
-import { getAuthState } from "../store/auth";
 import { getClient } from "../api/client";
 import {
   getReservationState,
@@ -10,11 +8,11 @@ import {
   updateReservations,
 } from "../store/reservation";
 import Loading from "../ui/Loading";
+import ReservationCard from "../components/Cards/ReservationCard";
 
 function MyFlights() {
   const dispatch = useDispatch();
   const { reservations, loading } = useSelector(getReservationState);
-  const { user } = useSelector(getAuthState);
 
   const getReservations = async () => {
     dispatch(updateLoading(true));
@@ -31,13 +29,14 @@ function MyFlights() {
   useEffect(() => {
     getReservations();
   }, []);
+
   return (
     <div className="bg-gray-50 min-h-[92vh] items-center max-w-screen overflow-x-hidden">
       {/* Filter Part */}
       <FlightFilter />
       {loading ? (
         <Loading />
-      ) : reservations ? (
+      ) : reservations?.reservations?.length > 0 ? (
         <div>
           <div className="flex items-center justify-between p-6">
             <p>

@@ -1,12 +1,17 @@
 import React, { useState } from "react";
 import Radio from "../components/Radio";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { formatDateToISO } from "../utils/formatters";
 import Button from "../components/Buttons/Button";
-import { updateFlights, updateLoading } from "../store/flight";
+import {
+  getFlightState,
+  updateFlights,
+  updateLoading,
+  updatePage,
+} from "../store/flight";
 import client from "../api/client";
 
-function Filter({ date, page }) {
+function Filter({ date }) {
   const dispatch = useDispatch();
   const [filter, setFilter] = useState({
     sort: "lowest",
@@ -15,6 +20,7 @@ function Filter({ date, page }) {
     airline: "",
     direction: "",
   });
+  const { page } = useSelector(getFlightState);
 
   const handleClick = (name, type) => {
     if (name === filter[type]) {

@@ -3,6 +3,7 @@ import { createSelector, createSlice } from "@reduxjs/toolkit";
 const initialState = {
   flights: null,
   loading: false,
+  page: 0,
 };
 
 const slice = createSlice({
@@ -15,10 +16,13 @@ const slice = createSlice({
     updateLoading(flightState, { payload }) {
       flightState.loading = payload;
     },
+    updatePage(flightState, { payload }) {
+      flightState.page = payload;
+    },
   },
 });
 
-export const { updateLoading, updateFlights } = slice.actions;
+export const { updateLoading, updateFlights, updatePage } = slice.actions;
 
 export const getFlightState = createSelector(
   (state) => state,

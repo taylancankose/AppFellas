@@ -10,7 +10,7 @@ function FlightCards({ flights }) {
   const navigate = useNavigate();
   const { user, loggedIn } = useSelector(getAuthState);
 
-  const handleReservation = async ({ flightID, price }) => {
+  const handleReservation = async ({ flightID, price, flightDate }) => {
     try {
       const client = await getClient();
 
@@ -18,6 +18,17 @@ function FlightCards({ flights }) {
         toast.error(
           "You can not make any reservation since you are not logged in"
         );
+        return;
+      }
+      const currentDate = new Date();
+      const selectedFlightDate = new Date(flightDate); // UTC formatındaki tarihi alıyoruz
+      const localFlightDate = new Date(
+        selectedFlightDate.getTime() +
+          selectedFlightDate.getTimezoneOffset() * 60000
+      );
+
+      if (localFlightDate < currentDate) {
+        toast.error("You cannot book a flight for a past date.");
         return;
       }
 
@@ -132,6 +143,7 @@ function FlightCards({ flights }) {
                     handleReservation({
                       flightID: flight._id,
                       price: 200,
+                      flightDate: flight?.scheduleDateTime,
                     })
                   }
                   className="items-center justify-center flex absolute right-0 bottom-0 bg-purple-900 lg:w-48 lg:h-20 w-36 h-14  rounded-tl-lg rounded-br-lg cursor-pointer hover:bg-purple-950"
