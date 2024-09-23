@@ -3,7 +3,8 @@ import { createSelector, createSlice } from "@reduxjs/toolkit";
 const initialState = {
   flights: null,
   loading: false,
-  page: 0,
+  page: 1,
+  limit: 10,
 };
 
 const slice = createSlice({

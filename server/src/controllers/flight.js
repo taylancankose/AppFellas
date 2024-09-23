@@ -1,136 +1,65 @@
-// controllers/flightController.js
 import axios from "axios";
 import Flight from "../models/flight.js";
+import Airline from "../models/airline.js";
 
 export const getFlights = async (req, res) => {
-  const { page, fromDateTime, toDateTime } = req.query;
-  let lastFlights = [];
-  try {
-    // Find flights data according to date range
-    const existingFlights = await Flight.find({
-      scheduleDateTime: { $gte: fromDateTime, $lte: toDateTime },
-    });
+  const {
+    airline,
+    route,
+    direction,
+    page = 0,
+    fromDateTime,
+    toDateTime,
+  } = req.query;
 
-    const existingFlightIDs = existingFlights.map((flight) => flight.flightID);
-
-    // Get data from api
-    const response = await axios.get(
-      `${process.env.API_URL}/flights?includedelays=false&page=${page}&sort=%2BscheduleTime&fromDateTime=${fromDateTime}&toDateTime=${toDateTime}`,
-      {
-        headers: {
-          app_id: process.env.APPLICATION_ID,
-          app_key: process.env.API_KEY,
-          ResourceVersion: "v4",
-        },
-      }
-    );
-
-    const flights = response.data.flights;
-
-    if (!flights || flights.length === 0) {
-      return res.status(200).json({ message: "Flight could not be found" });
-    }
-
-    // Save data that are not found in db
-    for (let flight of flights) {
-      if (!existingFlightIDs.includes(flight.id)) {
-        const destinationCode =
-          flight.route.destinations[flight.route.destinations.length - 1];
-        const airlineICAO = flight.prefixICAO;
-
-        let destinationData = null;
-        let airlineData = null;
-
-        // Destination API
-        try {
-          const destinationResponse = await axios.get(
-            `${process.env.API_URL}/destinations/${destinationCode}`,
-            {
-              headers: {
-                app_id: process.env.APPLICATION_ID,
-                app_key: process.env.API_KEY,
-                ResourceVersion: "v4",
-              },
-            }
-          );
-          destinationData = destinationResponse.data;
-        } catch (error) {
-          console.warn(
-            `Destination API request could not succeed: ${destinationCode}`
-          );
-          destinationData = null;
-        }
-
-        // Airline API
-        try {
-          const airlineResponse = await axios.get(
-            `${process.env.API_URL}/airlines/${airlineICAO}`,
-            {
-              headers: {
-                app_id: process.env.APPLICATION_ID,
-                app_key: process.env.API_KEY,
-                ResourceVersion: "v4",
-              },
-            }
-          );
-          airlineData = airlineResponse.data;
-        } catch (error) {
-          console.warn(`Airline request could not succeed: ${airlineICAO}`);
-          airlineData = "Unknown airline";
-        }
-
-        // Save ne flight to db
-        const createdFlight = new Flight({
-          lastUpdatedAt: flight.lastUpdatedAt,
-          actualLandingTime: flight.actualLandingTime,
-          estimatedLandingTime: flight.estimatedLandingTime,
-          flightDirection: flight.flightDirection,
-          mainFlight: flight.mainFlight,
-          prefixIATA: flight.prefixIATA,
-          prefixICAO: flight.prefixICAO,
-          publicFlightState: flight.publicFlightState,
-          route: flight.route,
-          scheduleDateTime: flight.scheduleDateTime,
-          scheduleDate: flight.scheduleDate,
-          scheduleTime: flight.scheduleTime,
-          terminal: flight.terminal,
-          flightID: flight.id,
-          airline: airlineData,
-          destination: destinationData,
-        });
-
-        await createdFlight.save();
-        lastFlights.push(createdFlight); // add recently added flights to array
-      } else {
-        const existingFlight = await Flight.findOne({ flightID: flight.id });
-        lastFlights.push(existingFlight);
-      }
-    }
-
-    // Response
-    res.json({ lastFlights });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({
-      message: "An error occurred while fetching flights",
-      error,
+  if (!fromDateTime || !toDateTime) {
+    return res.status(400).json({
+      message: "fromDateTime and toDateTime are both required",
     });
   }
-};
 
-export const getFlightsByDirection = async (req, res) => {
-  const { direction, page = 0, fromDateTime, toDateTime } = req.query;
-  let lastFlights = [];
+  let limit = 10; // MongoDB için kullanılacak limit
+
   try {
-    // Make request with direction
-    const response = await axios.get(`${process.env.API_URL}/flights`, {
+    // MongoDB'den verileri al
+    let query = {
+      scheduleDateTime: { $gte: fromDateTime, $lte: toDateTime },
+    };
+
+    // MongoDB sorgusuna filtreler ekle
+    if (airline) {
+      query["airline.icao"] = airline;
+    }
+    if (route) {
+      query["route.destinations"] = route;
+    }
+    if (direction) {
+      query.flightDirection = direction;
+    }
+
+    // Sayfalama için skip ve limit değerlerini ayarla
+    const validPage = Math.max(page, 1);
+    const skip = (validPage - 1) * limit;
+
+    // MongoDB'den uçuşları getir
+    let lastFlights = await Flight.find(query).skip(skip).limit(limit);
+
+    if (lastFlights.length > 0) {
+      return res.json({ lastFlights, page: validPage, limit });
+    }
+
+    // Eğer MongoDB'de veri yoksa, API'den veri çek
+    const apiResponse = await axios.get(`${process.env.API_URL}/flights`, {
       params: {
+        airline,
+        route,
+        flightDirection: direction,
         includedelays: false,
-        page: page || 0,
+        page: validPage,
+        // size parametresi artık eklenmiyor!
         sort: "+scheduleTime",
         fromDateTime,
         toDateTime,
-        flightDirection: direction, // Direction
       },
       headers: {
         app_id: process.env.APPLICATION_ID,
@@ -139,60 +68,28 @@ export const getFlightsByDirection = async (req, res) => {
       },
     });
 
-    const flights = response.data.flights;
+    const flights = apiResponse.data.flights;
 
-    // if there is no flight
     if (!flights || flights.length === 0) {
       return res
         .status(200)
-        .json({ message: "No flights found for the given direction." });
+        .json({ message: "There is no flight at this preferences" });
     }
 
+    // Uçuşları veritabanına kaydet
+    let savedFlights = [];
     for (let flight of flights) {
-      const checkExists = await Flight.findOne({ flightID: flight.id });
-      if (checkExists) lastFlights.push(checkExists);
-      if (!checkExists) {
+      const existingFlight = await Flight.findOne({ flightID: flight.id });
+      if (!existingFlight) {
         const destinationCode =
           flight.route.destinations[flight.route.destinations.length - 1];
         const airlineICAO = flight.prefixICAO;
 
-        let destinationData = null;
-        let airlineData = null;
+        // Destination ve Airline verilerini al
+        let destinationData = await getDestinationData(destinationCode);
+        let airlineData = await Airline.findOne({ icao: airlineICAO });
 
-        try {
-          // Get Destination Data
-          const destinationResponse = await axios.get(
-            `${process.env.API_URL}/destinations/${destinationCode}`,
-            {
-              headers: {
-                app_id: process.env.APPLICATION_ID,
-                app_key: process.env.API_KEY,
-                ResourceVersion: "v4",
-              },
-            }
-          );
-          destinationData = destinationResponse.data;
-        } catch (error) {
-          console.warn(
-            `Destination API request could not succeed: ${destinationCode}`
-          );
-          destinationData = null;
-        }
-        try {
-          // Get Airline Data
-          const airlineResponse = await axios.get(
-            `${process.env.API_URL}/airlines/${airlineICAO}`,
-            {
-              headers: {
-                app_id: process.env.APPLICATION_ID,
-                app_key: process.env.API_KEY,
-                ResourceVersion: "v4",
-              },
-            }
-          );
-          airlineData = airlineResponse.data;
-        } catch (error) {
-          console.warn(`Airline request could not succeed: ${airlineICAO}`);
+        if (!airlineData) {
           airlineData = "Unknown airline";
         }
 
@@ -215,18 +112,50 @@ export const getFlightsByDirection = async (req, res) => {
           destination: destinationData,
         });
 
-        lastFlights.push(createdFlight);
         await createdFlight.save();
+        savedFlights.push(createdFlight);
       }
     }
 
-    // Response
-    res.json({ lastFlights });
+    // Sonuçları döndür
+    res.json({ lastFlights: savedFlights, page: validPage, limit });
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({
-      message: "An error occurred while fetching flights by direction",
-      error,
-    });
+    console.error(
+      "An unexpected error occurred while saving the flights:",
+      error.message
+    );
+
+    if (error.response) {
+      console.error("Error response data:", error.response.data);
+      return res.status(500).json({
+        message: "An unexpected error occurred while saving the flights",
+        error: error.response.data,
+      });
+    } else {
+      return res.status(500).json({
+        message: "An unexpected error occurred while saving the flights",
+        error: error.message,
+      });
+    }
+  }
+};
+
+// Yardımcı fonksiyon - Destination verisini almak için
+const getDestinationData = async (destinationCode) => {
+  try {
+    const destinationResponse = await axios.get(
+      `${process.env.API_URL}/destinations/${destinationCode}`,
+      {
+        headers: {
+          app_id: process.env.APPLICATION_ID,
+          app_key: process.env.API_KEY,
+          ResourceVersion: "v4",
+        },
+      }
+    );
+    return destinationResponse.data;
+  } catch (error) {
+    console.warn(`Destination API request failed: ${destinationCode}`, error);
+    return null;
   }
 };

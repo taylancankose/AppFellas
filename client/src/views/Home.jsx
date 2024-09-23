@@ -6,38 +6,83 @@ import Filter from "../ui/Filter";
 import { useDispatch, useSelector } from "react-redux";
 import Loading from "../ui/Loading";
 import { formatDateToISO, getFormattedDate } from "../utils/formatters";
-import { getFlightState, updateFlights } from "../store/flight";
+import { getFlightState, updateFlights, updatePage } from "../store/flight";
 import client from "../api/client";
 import { updateLoading } from "../store/flight";
+import {
+  updateLoading as updateAirlineLoading,
+  updateAirlines,
+} from "../store/airline";
 import Pagination from "../components/Pagination";
+
+export const getFlights = async (dispatch, filter, page) => {
+  dispatch(updateLoading(true));
+
+  try {
+    // Base URL
+    let url = `/flights/all?page=${page}&fromDateTime=${formatDateToISO(
+      filter.fromDateTime
+    )}&toDateTime=${formatDateToISO(filter.toDateTime)}`;
+
+    // Only add filter if it's defined and not empty
+    if (filter?.direction) {
+      url += `&direction=${filter?.direction}`;
+    }
+    if (filter?.location) {
+      url += `&route=${filter?.location}`;
+    }
+
+    if (filter?.airline) {
+      url += `&airline=${filter?.airline}`;
+    }
+
+    console.log(filter);
+    console.log(url);
+
+    // Request to the API
+    const { data } = await client.get(url);
+
+    // Update flights and page number (if needed)
+    dispatch(updateFlights(data?.lastFlights));
+
+    // Handle pagination: update the current page and total pages
+    dispatch(updatePage(page));
+  } catch (error) {
+    console.log("Error fetching flights:", error);
+  }
+
+  dispatch(updateLoading(false));
+};
 
 function Home() {
   const dispatch = useDispatch();
   const { flights, loading, page } = useSelector(getFlightState);
 
-  const [date, setDate] = useState({
+  const [filter, setFilter] = useState({
+    sort: "lowest",
+    stops: "",
+    airline: "", // Hava yolu şirketi filtresi
+    direction: "", // Yön filtresi
+    location: "", // city
     fromDateTime: getFormattedDate(),
     toDateTime: getFormattedDate(1),
   });
-
-  const getFlights = async () => {
-    dispatch(updateLoading(true));
+  const getAirlines = async () => {
+    dispatch(updateAirlineLoading(true));
     try {
-      const { data } = await client.get(
-        `/flights/getAll?page=${page}&fromDateTime=${formatDateToISO(
-          date.fromDateTime
-        )}&toDateTime=${formatDateToISO(date.toDateTime)}`
-      );
-      dispatch(updateFlights(data.lastFlights));
+      const { data } = await client.get(`/airlines/all`);
+      dispatch(updateAirlines(data));
     } catch (error) {
       console.log(error);
     }
-    dispatch(updateLoading(false));
+    dispatch(updateAirlineLoading(false));
   };
 
   useEffect(() => {
-    getFlights();
+    getFlights(dispatch, filter, page);
+    getAirlines();
   }, [page]);
+  console.log(flights?.length);
   return (
     <>
       {/* Header */}
@@ -45,13 +90,23 @@ function Home() {
         <div className="flex flex-wrap lg:flex-nowrap items-start justify-between w-full p-4 mt-6 lg:space-x-4">
           {/* Main Section */}
           <section className="lg:w-4/5 w-full order-2 lg:order-1">
-            <SearchForm date={date} setDate={setDate} />
+            <SearchForm filter={filter} setFilter={setFilter} />
             <div className="flex md:flex-nowrap flex-wrap items-start justify-between">
               <div className="mt-10 md:w-[70%] w-full md:order-1 order-2 ">
-                {loading ? <Loading /> : <FlightCards flights={flights} />}
+                {loading ? (
+                  <Loading />
+                ) : flights?.length > 0 ? (
+                  <FlightCards
+                    flights={flights}
+                    filter={filter}
+                    setFilter={setFilter}
+                  />
+                ) : (
+                  <p>There is no flight available</p>
+                )}
               </div>
               <div className="mt-10 md:w-[20%] w-full md:order-2 order-1">
-                <Filter date={date} />
+                <Filter filter={filter} setFilter={setFilter} />
               </div>
             </div>
           </section>
@@ -60,7 +115,7 @@ function Home() {
             <CategoryCards />
           </section>
         </div>
-        <Pagination />
+        <Pagination filter={filter} />
       </div>
     </>
   );

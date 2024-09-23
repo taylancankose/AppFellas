@@ -1,9 +1,8 @@
 import express from "express";
-import { getFlights, getFlightsByDirection } from "../controllers/flight.js";
+import { getFlights } from "../controllers/flight.js";
 
 const router = express.Router();
 
-router.get("/getAll", getFlights);
-router.get("/get-by-direction", getFlightsByDirection);
+router.get("/all", getFlights);
 
 export default router;

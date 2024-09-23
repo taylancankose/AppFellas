@@ -3,17 +3,11 @@ import InlineDiviButton from "../components/Buttons/InlineDiviButton";
 import Input from "../components/Input";
 import Button from "../components/Buttons/Button";
 import { useDispatch, useSelector } from "react-redux";
-import { formatDateToISO } from "../utils/formatters";
-import {
-  getFlightState,
-  updateFlights,
-  updateLoading,
-  updatePage,
-} from "../store/flight";
-import client from "../api/client";
+import { getFlightState } from "../store/flight";
 import { toast } from "react-toastify";
+import { getFlights } from "../views/Home";
 
-function SearchForm({ date, setDate }) {
+function SearchForm({ filter, setFilter }) {
   const [active, setActive] = useState("round");
   const today = new Date().toISOString().split("T")[0];
   const dispatch = useDispatch();
@@ -24,46 +18,33 @@ function SearchForm({ date, setDate }) {
   };
 
   const handleSelect = (e) => {
-    setDate({
-      ...date,
-      [e.target.name]: e.target.value,
+    setFilter({
+      ...filter,
+      [e.target.name]: e.target.value.toUpperCase(),
     });
+    console.log(filter);
   };
 
   const validateDates = () => {
-    if (date?.fromDateTime < today) {
+    if (filter?.fromDateTime < today) {
       toast.error("From date cannot be earlier than today.");
       return false;
     }
-    if (date?.toDateTime < date?.fromDateTime) {
+    if (filter?.toDateTime < filter?.fromDateTime) {
       toast.error("To date cannot be earlier than from date.");
       return false;
     }
     return true;
   };
 
-  const getFlights = async () => {
-    dispatch(updateLoading(true));
-    try {
-      const { data } = await client.get(
-        `/flights/getAll?page=${page}&fromDateTime=${formatDateToISO(
-          date.fromDateTime
-        )}&toDateTime=${formatDateToISO(date.toDateTime)}`
-      );
-      dispatch(updatePage(0));
-      dispatch(updateFlights(data.lastFlights));
-    } catch (error) {
-      console.log(error);
-    }
-    dispatch(updateLoading(false));
-  };
-
   const handleClick = async (e) => {
     e.preventDefault();
     if (validateDates()) {
-      getFlights();
+      // Call getFlights and pass the current filter and page
+      getFlights(dispatch, filter, page);
     }
   };
+
   return (
     <div className="bg-white shadow-md rounded-xl p-6">
       <div className="flex items-center justify-between h-full mb-6 md:flex-nowrap flex-wrap">
@@ -79,6 +60,7 @@ function SearchForm({ date, setDate }) {
           active={active}
         />
       </div>
+
       {/* From & To, Dates */}
       <div className="flex flex-col md:flex-row md:space-x-4 mt-4 w-full">
         {/* From & To */}
@@ -89,34 +71,41 @@ function SearchForm({ date, setDate }) {
             placeholder={"From"}
             type={"text"}
             inputClass={"p-2 rounded-l-full w-full pl-10"}
+            name="from"
           />
 
           {/* To */}
           <Input
             icon={"plane-arrival"}
-            placeholder={"To"}
+            placeholder={"To (ICAO)"}
             type={"text"}
             inputClass={"p-2 rounded-r-full w-full pl-10"}
+            name="location"
+            value={filter?.location}
+            onChange={handleSelect}
+            maxLength={3}
           />
         </div>
+
         {/* Dates */}
         <div className="flex space-x-1 md:w-1/2 w-full">
           <Input
             name="fromDateTime"
-            value={date?.fromDateTime}
+            value={filter?.fromDateTime}
             onChange={handleSelect}
             type={"date"}
             inputClass={"p-2 rounded-l-full w-full"}
           />
           <Input
             name="toDateTime"
-            value={date?.toDateTime}
+            value={filter?.toDateTime}
             onChange={handleSelect}
             type={"date"}
             inputClass={"p-2 rounded-r-full w-full"}
           />
         </div>
       </div>
+
       <Button title={"Show flights"} btnClass={"mt-8"} onClick={handleClick} />
     </div>
   );
