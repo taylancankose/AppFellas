@@ -20,6 +20,7 @@ const slice = createSlice({
 
 export const { updateLoading, updateReservations } = slice.actions;
 
+//  memoized selector to check reservationState
 export const getReservationState = createSelector(
   (state) => state,
   ({ reservation }) => reservation

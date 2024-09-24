@@ -2,15 +2,14 @@ import React from "react";
 import Radio from "../components/Radio";
 import { useDispatch, useSelector } from "react-redux";
 import Button from "../components/Buttons/Button";
-import { getFlightState } from "../store/flight";
+import { getFlightState, updatePage } from "../store/flight";
 import AirlineFilter from "../components/AirlineFilter";
-import { getFlights } from "../views/Home"; // getFlights fonksiyonunu import ediyoruz
-
+import { getFlights } from "../views/Home";
 function Filter({ filter, setFilter }) {
   const dispatch = useDispatch();
   const { page } = useSelector(getFlightState);
 
-  // Filter değerini güncelleme işlemi
+  // Update filter values
   const handleClick = (name, type) => {
     setFilter({
       ...filter,
@@ -18,9 +17,10 @@ function Filter({ filter, setFilter }) {
     });
   };
 
-  // Filtreleme işlemi için getFlights'i kullanıyoruz
+  // getFlights by filters
   const handleFilterByCriteria = async () => {
-    getFlights(dispatch, filter, page); // getFlights çağırılıyor
+    dispatch(updatePage(0));
+    getFlights(dispatch, filter, page);
   };
 
   return (

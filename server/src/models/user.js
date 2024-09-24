@@ -34,6 +34,7 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
+// hash the password
 userSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
     this.password = await hash(this.password, 10);
@@ -42,6 +43,7 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
+// check hashed password in db whilie logging in
 userSchema.methods.comparePassword = async function (password) {
   const result = await compare(password, this.password);
   return result;

@@ -17,7 +17,6 @@ import Pagination from "../components/Pagination";
 
 export const getFlights = async (dispatch, filter, page) => {
   dispatch(updateLoading(true));
-
   try {
     // Base URL
     let url = `/flights/all?page=${page}&fromDateTime=${formatDateToISO(
@@ -35,13 +34,10 @@ export const getFlights = async (dispatch, filter, page) => {
     if (filter?.airline) {
       url += `&airline=${filter?.airline}`;
     }
-
-    console.log(filter);
     console.log(url);
-
     // Request to the API
     const { data } = await client.get(url);
-
+    console.log(data);
     // Update flights and page number (if needed)
     dispatch(updateFlights(data?.lastFlights));
 
@@ -82,7 +78,6 @@ function Home() {
     getFlights(dispatch, filter, page);
     getAirlines();
   }, [page]);
-  console.log(flights?.length);
   return (
     <>
       {/* Header */}

@@ -20,6 +20,7 @@ const slice = createSlice({
 
 export const { updateLoading, updateAirlines } = slice.actions;
 
+//  memoized selector to check airlineState
 export const getAirlineState = createSelector(
   (state) => state,
   ({ airline }) => airline

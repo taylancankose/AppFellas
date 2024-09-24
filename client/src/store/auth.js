@@ -24,6 +24,7 @@ const slice = createSlice({
 
 export const { updateLoading, updateUser, updateLoggedIn } = slice.actions;
 
+//  memoized selector to check authstate
 export const getAuthState = createSelector(
   (state) => state,
   ({ auth }) => auth

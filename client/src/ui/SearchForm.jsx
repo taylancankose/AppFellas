@@ -3,7 +3,7 @@ import InlineDiviButton from "../components/Buttons/InlineDiviButton";
 import Input from "../components/Input";
 import Button from "../components/Buttons/Button";
 import { useDispatch, useSelector } from "react-redux";
-import { getFlightState } from "../store/flight";
+import { getFlightState, updatePage } from "../store/flight";
 import { toast } from "react-toastify";
 import { getFlights } from "../views/Home";
 
@@ -41,6 +41,7 @@ function SearchForm({ filter, setFilter }) {
     e.preventDefault();
     if (validateDates()) {
       // Call getFlights and pass the current filter and page
+      dispatch(updatePage(0));
       getFlights(dispatch, filter, page);
     }
   };

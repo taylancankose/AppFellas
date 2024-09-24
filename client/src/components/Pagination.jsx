@@ -14,7 +14,7 @@ function Pagination({ filter }) {
   return (
     <nav className="pb-6">
       <ul className="flex items-center -space-x-px h-8 text-sm">
-        {page > 1 && (
+        {page > 0 && (
           <li>
             <button
               onClick={() => dispatch(updatePage(page - 1))}
@@ -44,7 +44,7 @@ function Pagination({ filter }) {
             {page}
           </span>
         </li>
-        {flights?.length === 10 && (
+        {flights?.length === 20 && (
           <li>
             <button
               onClick={() => dispatch(updatePage(page + 1))}

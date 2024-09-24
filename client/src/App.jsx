@@ -19,12 +19,16 @@ function App() {
   const getAuthStatus = async () => {
     dispatch(updateLoading(true));
     try {
+      // get token from local storage
       const token = getFromLocalStorage(Keys.AUTH_TOKEN);
+
+      // if there is no token make loading false
       if (!token) {
         dispatch(updateLoading(false));
         return;
       }
 
+      // get profile if there is token
       const { data } = await client.get("/auth/is-auth", {
         headers: {
           Authorization: `Bearer ${token}`,

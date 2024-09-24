@@ -4,7 +4,7 @@ dotenv.config();
 
 const MONGO_URI = process.env.MONGO_URI;
 
-// Connecting mongodb
+// Connecting to mongodb
 mongoose
   .connect(MONGO_URI)
   .then(() => {

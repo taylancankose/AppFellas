@@ -88,7 +88,7 @@ function FlightCards({ flights }) {
                       Airport:{" "}
                       {flight?.flightDirection === "D"
                         ? "AMS"
-                        : flight?.destination.iata}
+                        : flight?.destination?.iata}
                     </p>
                   </div>
 
@@ -123,7 +123,7 @@ function FlightCards({ flights }) {
                       Airport:{" "}
                       {flight?.flightDirection === "A"
                         ? "AMS"
-                        : flight?.destination.iata}
+                        : flight?.destination?.iata}
                     </p>
                   </div>
                 </div>

@@ -3,7 +3,7 @@ import { createSelector, createSlice } from "@reduxjs/toolkit";
 const initialState = {
   flights: null,
   loading: false,
-  page: 1,
+  page: 0,
   limit: 10,
 };
 
@@ -25,6 +25,7 @@ const slice = createSlice({
 
 export const { updateLoading, updateFlights, updatePage } = slice.actions;
 
+//  memoized selector to check flightState
 export const getFlightState = createSelector(
   (state) => state,
   ({ flight }) => flight

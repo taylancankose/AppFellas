@@ -18,15 +18,13 @@ export const getFlights = async (req, res) => {
     });
   }
 
-  let limit = 10; // MongoDB için kullanılacak limit
-
   try {
-    // MongoDB'den verileri al
+    // Get data from mongodb
     let query = {
       scheduleDateTime: { $gte: fromDateTime, $lte: toDateTime },
     };
 
-    // MongoDB sorgusuna filtreler ekle
+    // Add filters
     if (airline) {
       query["airline.icao"] = airline;
     }
@@ -37,26 +35,13 @@ export const getFlights = async (req, res) => {
       query.flightDirection = direction;
     }
 
-    // Sayfalama için skip ve limit değerlerini ayarla
-    const validPage = Math.max(page, 1);
-    const skip = (validPage - 1) * limit;
-
-    // MongoDB'den uçuşları getir
-    let lastFlights = await Flight.find(query).skip(skip).limit(limit);
-
-    if (lastFlights.length > 0) {
-      return res.json({ lastFlights, page: validPage, limit });
-    }
-
-    // Eğer MongoDB'de veri yoksa, API'den veri çek
     const apiResponse = await axios.get(`${process.env.API_URL}/flights`, {
       params: {
         airline,
         route,
         flightDirection: direction,
         includedelays: false,
-        page: validPage,
-        // size parametresi artık eklenmiyor!
+        page: page,
         sort: "+scheduleTime",
         fromDateTime,
         toDateTime,
@@ -70,29 +55,31 @@ export const getFlights = async (req, res) => {
 
     const flights = apiResponse.data.flights;
 
+    // If there is no flight response, return message
     if (!flights || flights.length === 0) {
       return res
         .status(200)
         .json({ message: "There is no flight at this preferences" });
     }
 
-    // Uçuşları veritabanına kaydet
+    // Save flights to db
     let savedFlights = [];
     for (let flight of flights) {
-      const existingFlight = await Flight.findOne({ flightID: flight.id });
-      if (!existingFlight) {
+      const existingFlight = await Flight.findOne({ flightID: flight?.id });
+
+      // if flight does not exists in db
+      if (!existingFlight?.flightID) {
         const destinationCode =
           flight.route.destinations[flight.route.destinations.length - 1];
         const airlineICAO = flight.prefixICAO;
-
-        // Destination ve Airline verilerini al
+        // Get Destination and Airline data from API and db respectively
         let destinationData = await getDestinationData(destinationCode);
         let airlineData = await Airline.findOne({ icao: airlineICAO });
 
         if (!airlineData) {
           airlineData = "Unknown airline";
         }
-
+        // create a new flight for flight
         const createdFlight = new Flight({
           lastUpdatedAt: flight.lastUpdatedAt,
           actualLandingTime: flight.actualLandingTime,
@@ -112,13 +99,18 @@ export const getFlights = async (req, res) => {
           destination: destinationData,
         });
 
+        // save the flight to db
         await createdFlight.save();
+        // add array to createdFlight for return response
         savedFlights.push(createdFlight);
+      } else {
+        // add array to existingFlight for return response
+        savedFlights.push(existingFlight);
       }
     }
 
-    // Sonuçları döndür
-    res.json({ lastFlights: savedFlights, page: validPage, limit });
+    // Return results
+    res.json({ lastFlights: savedFlights, page: page });
   } catch (error) {
     console.error(
       "An unexpected error occurred while saving the flights:",

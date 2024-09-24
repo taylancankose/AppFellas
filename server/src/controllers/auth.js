@@ -61,6 +61,7 @@ export const login = async (req, res) => {
   }
 };
 
+// logout user, with removing token
 export const logout = async (req, res) => {
   const user = await User.findById(req.user.id);
   if (!user) throw new Error("Something went wrong, user not found");
@@ -71,6 +72,7 @@ export const logout = async (req, res) => {
   res.json({ message: "Logged out" });
 };
 
+// get user profile
 export const userProfile = (req, res) => {
   res.json({
     user: req.user,
